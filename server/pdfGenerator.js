@@ -62,6 +62,17 @@ function buildPdfHtml(examData, results, date, chartImages) {
     // Calcular totais
     let totalMonthlyMB = 0;
     const examDetails = [];
+	
+	// Carrega a logo como base64
+    const logoPath = path.join(__dirname, '../public/logos/polos-logo.png');
+    let logoBase64 = '';
+    
+    try {
+        const logoFile = fs.readFileSync(logoPath);
+        logoBase64 = `data:image/png;base64,${logoFile.toString('base64')}`;
+    } catch (error) {
+        console.error('Erro ao carregar a logo:', error);
+    }
     
     // Processar dados dos exames
     for (const [exam, data] of Object.entries(examData)) {

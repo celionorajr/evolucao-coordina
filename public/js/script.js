@@ -48,60 +48,66 @@ document.addEventListener('DOMContentLoaded', async function() {
     resetBtn.addEventListener('click', resetForm);
     generatePdfBtn.addEventListener('click', generatePdf);
     
-    // Função principal de cálculo
-    function calculateProjection() {
-      try {
-        // Obter valores dos inputs
-        const examData = {
-          mamografia: getExamData('mamografia'),
-          hemodinamica: getExamData('hemodinamica'),
-          tomografia: getExamData('tomografia'),
-          raiox: getExamData('raiox'),
-          ressonancia: getExamData('ressonancia'),
-          ultrassom: getExamData('ultrassom')
-        };
-        
-        const customYears = parseInt(document.getElementById('custom-years').value) || 0;
-        if (customYears < 0) {
-          alert('Por favor, insira um número de anos positivo');
-          return;
-        }
-        
-        // Calcular totais
-        let totalMonthlyMB = 0;
-        const examResults = {};
-        
-        for (const [exam, data] of Object.entries(examData)) {
-          const dailyMB = data.qtd * data.size;
-          examResults[exam] = {
-            dailyMB: dailyMB,
-            annualGB: (dailyMB * 365) / 1024
-          };
-          totalDailyMB += dailyMB;
-        }
-        
-        if (totalMonthlyMB === 0) {
-          alert('Por favor, insira dados para pelo menos um tipo de exame');
-          return;
-        }
-        
-        const annualGB = (totalDailyMB * 365) / 1024;
-        
-        // Atualizar resultados
-        updateResults(annualGB, customYears);
-        
-        // Atualizar gráficos
-        updateCharts(examResults, annualGB, customYears);
-        
-        // Mostrar seção de resultados
-        resultsSection.style.display = 'block';
-        resultsSection.scrollIntoView({ behavior: 'smooth' });
-        
-      } catch (error) {
-        console.error('Erro no cálculo:', error);
-        alert('Ocorreu um erro ao calcular. Verifique os dados inseridos.');
-      }
+    // Função principal de cálculo - Versão Corrigida
+function calculateProjection() {
+  try {
+    // Obter valores dos inputs
+    const examData = {
+      mamografia: getExamData('mamografia'),
+      hemodinamica: getExamData('hemodinamica'),
+      tomografia: getExamData('tomografia'),
+      raiox: getExamData('raiox'),
+      ressonancia: getExamData('ressonancia'),
+      ultrassom: getExamData('ultrassom')
+    };
+    
+    const customYears = parseInt(document.getElementById('custom-years').value) || 0;
+    if (customYears < 0) {
+      alert('Por favor, insira um número de anos positivo');
+      return;
     }
+    
+    // Calcular totais - CORREÇÃO AQUI
+    let totalMonthlyMB = 0; // Mantido para compatibilidade
+    let totalDailyMB = 0;   // Variável que estava faltando
+    const examResults = {};
+    
+    for (const [exam, data] of Object.entries(examData)) {
+      const dailyMB = data.qtd * data.size;
+      const monthlyMB = dailyMB * 30; // Considerando 30 dias no mês
+      
+      examResults[exam] = {
+        dailyMB: dailyMB,
+        monthlyMB: monthlyMB, // Adicionado para os gráficos
+        annualGB: (dailyMB * 365) / 1024
+      };
+      
+      totalDailyMB += dailyMB;
+      totalMonthlyMB += monthlyMB;
+    }
+    
+    if (totalDailyMB === 0) { // Alterado para verificar totalDailyMB
+      alert('Por favor, insira dados para pelo menos um tipo de exame');
+      return;
+    }
+    
+    const annualGB = (totalDailyMB * 365) / 1024;
+    
+    // Atualizar resultados
+    updateResults(annualGB, customYears);
+    
+    // Atualizar gráficos
+    updateCharts(examResults, annualGB, customYears);
+    
+    // Mostrar seção de resultados
+    resultsSection.style.display = 'block';
+    resultsSection.scrollIntoView({ behavior: 'smooth' });
+    
+  } catch (error) {
+    console.error('Erro no cálculo:', error);
+    alert('Ocorreu um erro ao calcular. Verifique os dados inseridos.');
+  }
+}
     
     // Helper para obter dados de cada exame
     function getExamData(examName) {
@@ -160,11 +166,11 @@ document.addEventListener('DOMContentLoaded', async function() {
       ];
       
       for (const [exam, info] of Object.entries(examResults)) {
-        if (info.monthlyMB > 0) {
-          labels.push(exam.charAt(0).toUpperCase() + exam.slice(1));
-          data.push(info.monthlyMB);
-        }
-      }
+    if (info.monthlyMB > 0) { // Agora usando monthlyMB que existe
+      labels.push(exam.charAt(0).toUpperCase() + exam.slice(1));
+      data.push(info.monthlyMB);
+    }
+  }
       
       if (distributionChart) distributionChart.destroy();
       

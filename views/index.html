@@ -1,6 +1,157 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projeção de Armazenamento PACS | Polos Tecnologia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <img src="/logos/polos-logo.png" alt="Polos Tecnologia" class="logo">
+            <h1>Sistema de Projeção de Armazenamento PACS</h1>
+        </header>
+
+        <main class="content">
+            <section class="input-section">
+                <h2>Dados dos Exames</h2>
+                <form id="storageForm">
+                    <div class="form-grid">
+                        <!-- Mamografia -->
+                        <div class="input-group">
+                            <label for="mamografia">Mamografia</label>
+                            <div class="input-row">
+                                <input type="number" id="mamografia-qtd" placeholder="Qtd/mês" min="0">
+                                <input type="number" id="mamografia-size" placeholder="Tamanho (MB)" min="0" step="0.01">
+                            </div>
+                        </div>
+
+                        <!-- Hemodinâmica -->
+                        <div class="input-group">
+                            <label for="hemodinamica">Hemodinâmica</label>
+                            <div class="input-row">
+                                <input type="number" id="hemodinamica-qtd" placeholder="Qtd/mês" min="0">
+                                <input type="number" id="hemodinamica-size" placeholder="Tamanho (MB)" min="0" step="0.01">
+                            </div>
+                        </div>
+
+                        <!-- Tomografia -->
+                        <div class="input-group">
+                            <label for="tomografia">Tomografia</label>
+                            <div class="input-row">
+                                <input type="number" id="tomografia-qtd" placeholder="Qtd/mês" min="0">
+                                <input type="number" id="tomografia-size" placeholder="Tamanho (MB)" min="0" step="0.01">
+                            </div>
+                        </div>
+
+                        <!-- Raio-X -->
+                        <div class="input-group">
+                            <label for="raiox">Raio-X</label>
+                            <div class="input-row">
+                                <input type="number" id="raiox-qtd" placeholder="Qtd/mês" min="0">
+                                <input type="number" id="raiox-size" placeholder="Tamanho (MB)" min="0" step="0.01">
+                            </div>
+                        </div>
+
+                        <!-- Ressonância -->
+                        <div class="input-group">
+                            <label for="ressonancia">Ressonância</label>
+                            <div class="input-row">
+                                <input type="number" id="ressonancia-qtd" placeholder="Qtd/mês" min="0">
+                                <input type="number" id="ressonancia-size" placeholder="Tamanho (MB)" min="0" step="0.01">
+                            </div>
+                        </div>
+
+                        <!-- Ultrassom -->
+                        <div class="input-group">
+                            <label for="ultrassom">Ultrassom</label>
+                            <div class="input-row">
+                                <input type="number" id="ultrassom-qtd" placeholder="Qtd/mês" min="0">
+                                <input type="number" id="ultrassom-size" placeholder="Tamanho (MB)" min="0" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="custom-years">
+                        <label for="custom-years">Período personalizado (anos):</label>
+                        <input type="number" id="custom-years" min="1" placeholder="Digite o número de anos">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" id="calculate-btn" class="btn btn-primary">Calcular Projeção</button>
+                        <button type="reset" id="reset-btn" class="btn btn-secondary">Limpar Campos</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="results-section" id="resultsSection" style="display: none;">
+                <h2>Resultados da Projeção</h2>
+                
+                <div class="results-grid">
+                    <div class="result-card">
+                        <h3>Resumo Anual</h3>
+                        <div class="result-value" id="annual-result">-</div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <h3>1 Ano</h3>
+                        <div class="result-value" id="1year-result">-</div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <h3>5 Anos</h3>
+                        <div class="result-value" id="5years-result">-</div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <h3>10 Anos</h3>
+                        <div class="result-value" id="10years-result">-</div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <h3>20 Anos</h3>
+                        <div class="result-value" id="20years-result">-</div>
+                    </div>
+                    
+                    <div class="result-card" id="custom-result-container" style="display: none;">
+                        <h3 id="custom-result-title">-</h3>
+                        <div class="result-value" id="custom-result">-</div>
+                    </div>
+                </div>
+
+                <div class="charts-container">
+                    <div class="chart-wrapper">
+                        <h3>Distribuição por Tipo de Exame</h3>
+                        <canvas id="distributionChart"></canvas>
+                    </div>
+                    
+                    <div class="chart-wrapper">
+                        <h3>Projeção de Crescimento</h3>
+                        <canvas id="growthChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="report-actions">
+                    <button id="generate-pdf" class="btn btn-primary">
+                        Gerar Relatório PDF
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; <span id="current-year"></span> Polos Tecnologia - Todos os direitos reservados</p>
+            <p>Desenvolvido por Célio Nora Junior | Analista de Suporte Técnico</p>
+        </footer>
+    </div>
+
+    <script src="/libs/chart.min.js"></script>
+    <script src="/js/script.js"></script>
+</body>
+</html><html lang="pt-BR">
+<head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Projeção de Armazenamento PACS</title>

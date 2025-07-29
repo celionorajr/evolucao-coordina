@@ -16,7 +16,7 @@ function loadChartJS() {
 // Função para validar números positivos
 function validatePositiveNumber(value, fieldName) {
   const num = parseFloat(value);
-  if (isNaN(num) return 0;
+  if (isNaN(num)) return 0;
   if (num < 0) {
     alert(`Por favor, insira um valor positivo para ${fieldName}`);
     throw new Error(`Valor negativo não permitido em ${fieldName}`);

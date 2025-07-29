@@ -72,12 +72,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         const examResults = {};
         
         for (const [exam, data] of Object.entries(examData)) {
-          const monthlyMB = data.qtd * data.size;
+          const dailyMB = data.qtd * data.size;
           examResults[exam] = {
-            monthlyMB: monthlyMB,
-            annualGB: (monthlyMB * 12) / 1024
+            dailyMB: dailyMB,
+            annualGB: (dailyMB * 365) / 1024
           };
-          totalMonthlyMB += monthlyMB;
+          totalDailyMB += dailyMB;
         }
         
         if (totalMonthlyMB === 0) {
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', async function() {
           return;
         }
         
-        const annualGB = (totalMonthlyMB * 12) / 1024;
+        const annualGB = (totalDailyMB * 365) / 1024;
         
         // Atualizar resultados
         updateResults(annualGB, customYears);

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projeção de Armazenamento PACS | Polos Tecnologia</title>
+    <title>Dimensionamento PACS - Polos Tecnologia</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="/css/style.css" rel="stylesheet">
 </head>
@@ -11,7 +11,7 @@
     <div class="container">
         <header class="header">
             <img src="/logos/polos-logo.png" alt="Polos Tecnologia" class="logo">
-            <h1>Sistema de Projeção de Armazenamento PACS</h1>
+            <h1>Sistema de Dimensionamento PACS</h1>
         </header>
 
         <main class="content">
@@ -21,7 +21,7 @@
                     <div class="form-grid">
                         <!-- Mamografia -->
                         <div class="input-group">
-                            <label for="mamografia">Mamografia</label>
+                            <label for="mamografia-qtd">Mamografia</label>
                             <div class="input-row">
                                 <input type="number" id="mamografia-qtd" placeholder="Qtd/mês" min="0">
                                 <input type="number" id="mamografia-size" placeholder="Tamanho (MB)" min="0" step="0.01">
@@ -30,7 +30,7 @@
 
                         <!-- Hemodinâmica -->
                         <div class="input-group">
-                            <label for="hemodinamica">Hemodinâmica</label>
+                            <label for="hemodinamica-qtd">Hemodinâmica</label>
                             <div class="input-row">
                                 <input type="number" id="hemodinamica-qtd" placeholder="Qtd/mês" min="0">
                                 <input type="number" id="hemodinamica-size" placeholder="Tamanho (MB)" min="0" step="0.01">
@@ -39,7 +39,7 @@
 
                         <!-- Tomografia -->
                         <div class="input-group">
-                            <label for="tomografia">Tomografia</label>
+                            <label for="tomografia-qtd">Tomografia</label>
                             <div class="input-row">
                                 <input type="number" id="tomografia-qtd" placeholder="Qtd/mês" min="0">
                                 <input type="number" id="tomografia-size" placeholder="Tamanho (MB)" min="0" step="0.01">
@@ -48,7 +48,7 @@
 
                         <!-- Raio-X -->
                         <div class="input-group">
-                            <label for="raiox">Raio-X</label>
+                            <label for="raiox-qtd">Raio-X</label>
                             <div class="input-row">
                                 <input type="number" id="raiox-qtd" placeholder="Qtd/mês" min="0">
                                 <input type="number" id="raiox-size" placeholder="Tamanho (MB)" min="0" step="0.01">
@@ -57,7 +57,7 @@
 
                         <!-- Ressonância -->
                         <div class="input-group">
-                            <label for="ressonancia">Ressonância</label>
+                            <label for="ressonancia-qtd">Ressonância</label>
                             <div class="input-row">
                                 <input type="number" id="ressonancia-qtd" placeholder="Qtd/mês" min="0">
                                 <input type="number" id="ressonancia-size" placeholder="Tamanho (MB)" min="0" step="0.01">
@@ -66,7 +66,7 @@
 
                         <!-- Ultrassom -->
                         <div class="input-group">
-                            <label for="ultrassom">Ultrassom</label>
+                            <label for="ultrassom-qtd">Ultrassom</label>
                             <div class="input-row">
                                 <input type="number" id="ultrassom-qtd" placeholder="Qtd/mês" min="0">
                                 <input type="number" id="ultrassom-size" placeholder="Tamanho (MB)" min="0" step="0.01">
@@ -86,7 +86,7 @@
                 </form>
             </section>
 
-            <section class="results-section" id="resultsSection" style="display: none;">
+            <section class="results-section" id="resultsSection">
                 <h2>Resultados da Projeção</h2>
                 
                 <div class="results-grid">
@@ -115,8 +115,8 @@
                         <div class="result-value" id="20years-result">-</div>
                     </div>
                     
-                    <div class="result-card" id="custom-result-container" style="display: none;">
-                        <h3 id="custom-result-title">-</h3>
+                    <div class="result-card" id="custom-result-container">
+                        <h3 id="custom-result-title">Período Custom</h3>
                         <div class="result-value" id="custom-result">-</div>
                     </div>
                 </div>
@@ -149,17 +149,5 @@
 
     <script src="/libs/chart.min.js"></script>
     <script src="/js/script.js"></script>
-</body>
-</html><html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Projeção de Armazenamento PACS</title>
-  <link rel="stylesheet" href="/css/style.css" />
-</head>
-<body>
-  <h1>Projeção de Armazenamento PACS</h1>
-  <script src="/libs/chart.min.js"></script>
-  <script src="/js/script.js"></script>
 </body>
 </html>

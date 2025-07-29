@@ -24,6 +24,25 @@ function validatePositiveNumber(value, fieldName) {
   return num;
 }
 
+// Função para ajustar gráficos em telas pequenas
+function adjustChartsForMobile() {
+  if (window.innerWidth <= 768) {
+    // Ajuste para o gráfico de pizza
+    if (distributionChart) {
+      distributionChart.options.plugins.legend.position = 'bottom';
+      distributionChart.options.plugins.legend.labels.font.size = 10;
+      distributionChart.update();
+    }
+    
+    // Ajuste para o gráfico de barras
+    if (growthChart) {
+      growthChart.options.scales.x.title.font.size = 10;
+      growthChart.options.scales.y.title.font.size = 10;
+      growthChart.update();
+    }
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async function() {
   try {
     // Carrega Chart.js antes de iniciar a aplicação
@@ -47,67 +66,69 @@ document.addEventListener('DOMContentLoaded', async function() {
     calculateBtn.addEventListener('click', calculateProjection);
     resetBtn.addEventListener('click', resetForm);
     generatePdfBtn.addEventListener('click', generatePdf);
+    window.addEventListener('resize', adjustChartsForMobile);
     
-    // Função principal de cálculo - Versão Corrigida
-function calculateProjection() {
-  try {
-    // Obter valores dos inputs
-    const examData = {
-      mamografia: getExamData('mamografia'),
-      hemodinamica: getExamData('hemodinamica'),
-      tomografia: getExamData('tomografia'),
-      raiox: getExamData('raiox'),
-      ressonancia: getExamData('ressonancia'),
-      ultrassom: getExamData('ultrassom')
-    };
-    
-    const customYears = parseInt(document.getElementById('custom-years').value) || 0;
-    if (customYears < 0) {
-      alert('Por favor, insira um número de anos positivo');
-      return;
+    // Função principal de cálculo
+    function calculateProjection() {
+      try {
+        // Obter valores dos inputs
+        const examData = {
+          mamografia: getExamData('mamografia'),
+          hemodinamica: getExamData('hemodinamica'),
+          tomografia: getExamData('tomografia'),
+          raiox: getExamData('raiox'),
+          ressonancia: getExamData('ressonancia'),
+          ultrassom: getExamData('ultrassom')
+        };
+        
+        const customYears = parseInt(document.getElementById('custom-years').value) || 0;
+        if (customYears < 0) {
+          alert('Por favor, insira um número de anos positivo');
+          return;
+        }
+        
+        // Calcular totais
+        let totalDailyMB = 0;
+        const examResults = {};
+        
+        for (const [exam, data] of Object.entries(examData)) {
+          const dailyMB = data.qtd * data.size;
+          const monthlyMB = dailyMB * 30;
+          
+          examResults[exam] = {
+            dailyMB: dailyMB,
+            monthlyMB: monthlyMB,
+            annualGB: (dailyMB * 365) / 1024
+          };
+          
+          totalDailyMB += dailyMB;
+        }
+        
+        if (totalDailyMB === 0) {
+          alert('Por favor, insira dados para pelo menos um tipo de exame');
+          return;
+        }
+        
+        const annualGB = (totalDailyMB * 365) / 1024;
+        
+        // Atualizar resultados
+        updateResults(annualGB, customYears);
+        
+        // Atualizar gráficos
+        updateCharts(examResults, annualGB, customYears);
+        
+        // Ajustar para mobile se necessário
+        adjustChartsForMobile();
+        
+        // Mostrar seção de resultados
+        resultsSection.style.display = 'block';
+        resultsSection.scrollIntoView({ behavior: 'smooth' });
+        
+      } catch (error) {
+        console.error('Erro no cálculo:', error);
+        alert('Ocorreu um erro ao calcular. Verifique os dados inseridos.');
+      }
     }
-    
-    // Calcular totais - CORREÇÃO AQUI
-    let totalMonthlyMB = 0; // Mantido para compatibilidade
-    let totalDailyMB = 0;   // Variável que estava faltando
-    const examResults = {};
-    
-    for (const [exam, data] of Object.entries(examData)) {
-      const dailyMB = data.qtd * data.size;
-      const monthlyMB = dailyMB * 30; // Considerando 30 dias no mês
-      
-      examResults[exam] = {
-        dailyMB: dailyMB,
-        monthlyMB: monthlyMB, // Adicionado para os gráficos
-        annualGB: (dailyMB * 365) / 1024
-      };
-      
-      totalDailyMB += dailyMB;
-      totalMonthlyMB += monthlyMB;
-    }
-    
-    if (totalDailyMB === 0) { // Alterado para verificar totalDailyMB
-      alert('Por favor, insira dados para pelo menos um tipo de exame');
-      return;
-    }
-    
-    const annualGB = (totalDailyMB * 365) / 1024;
-    
-    // Atualizar resultados
-    updateResults(annualGB, customYears);
-    
-    // Atualizar gráficos
-    updateCharts(examResults, annualGB, customYears);
-    
-    // Mostrar seção de resultados
-    resultsSection.style.display = 'block';
-    resultsSection.scrollIntoView({ behavior: 'smooth' });
-    
-  } catch (error) {
-    console.error('Erro no cálculo:', error);
-    alert('Ocorreu um erro ao calcular. Verifique os dados inseridos.');
-  }
-}
     
     // Helper para obter dados de cada exame
     function getExamData(examName) {
@@ -166,11 +187,11 @@ function calculateProjection() {
       ];
       
       for (const [exam, info] of Object.entries(examResults)) {
-    if (info.monthlyMB > 0) { // Agora usando monthlyMB que existe
-      labels.push(exam.charAt(0).toUpperCase() + exam.slice(1));
-      data.push(info.monthlyMB);
-    }
-  }
+        if (info.monthlyMB > 0) {
+          labels.push(exam.charAt(0).toUpperCase() + exam.slice(1));
+          data.push(info.monthlyMB);
+        }
+      }
       
       if (distributionChart) distributionChart.destroy();
       
@@ -189,12 +210,13 @@ function calculateProjection() {
           maintainAspectRatio: false,
           plugins: {
             legend: {
-              position: 'right',
+              position: window.innerWidth <= 768 ? 'bottom' : 'right',
               labels: {
                 padding: 20,
                 font: {
-                  size: 12
-                }
+                  size: window.innerWidth <= 768 ? 10 : 12
+                },
+                boxWidth: 12
               }
             },
             tooltip: {
@@ -244,7 +266,19 @@ function calculateProjection() {
               beginAtZero: true,
               title: {
                 display: true,
-                text: 'Armazenamento (GB)'
+                text: 'Armazenamento (GB)',
+                font: {
+                  size: window.innerWidth <= 768 ? 10 : 12
+                }
+              }
+            },
+            x: {
+              title: {
+                display: true,
+                text: 'Período',
+                font: {
+                  size: window.innerWidth <= 768 ? 10 : 12
+                }
               }
             }
           },
@@ -253,6 +287,13 @@ function calculateProjection() {
               callbacks: {
                 label: function(context) {
                   return formatStorage(context.raw);
+                }
+              }
+            },
+            legend: {
+              labels: {
+                font: {
+                  size: window.innerWidth <= 768 ? 10 : 12
                 }
               }
             }

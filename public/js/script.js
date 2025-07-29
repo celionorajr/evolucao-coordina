@@ -7,10 +7,21 @@ function loadChartJS() {
       const script = document.createElement('script');
       script.src = '/libs/chart.min.js';
       script.onload = resolve;
-      script.onerror = reject;
+      script.onerror = () => reject(new Error('Falha ao carregar Chart.js'));
       document.head.appendChild(script);
     }
   });
+}
+
+// Função para validar números positivos
+function validatePositiveNumber(value, fieldName) {
+  const num = parseFloat(value);
+  if (isNaN(num) return 0;
+  if (num < 0) {
+    alert(`Por favor, insira um valor positivo para ${fieldName}`);
+    throw new Error(`Valor negativo não permitido em ${fieldName}`);
+  }
+  return num;
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
@@ -39,52 +50,72 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Função principal de cálculo
     function calculateProjection() {
-      // Obter valores dos inputs
-      const examData = {
-        mamografia: getExamData('mamografia'),
-        hemodinamica: getExamData('hemodinamica'),
-        tomografia: getExamData('tomografia'),
-        raiox: getExamData('raiox'),
-        ressonancia: getExamData('ressonancia'),
-        ultrassom: getExamData('ultrassom')
-      };
-      
-      const customYears = parseInt(document.getElementById('custom-years').value) || 0;
-      
-      // Calcular totais
-      let totalMonthlyMB = 0;
-      const examResults = {};
-      
-      for (const [exam, data] of Object.entries(examData)) {
-        const monthlyMB = data.qtd * data.size;
-        examResults[exam] = {
-          monthlyMB: monthlyMB,
-          annualGB: (monthlyMB * 12) / 1024
+      try {
+        // Obter valores dos inputs
+        const examData = {
+          mamografia: getExamData('mamografia'),
+          hemodinamica: getExamData('hemodinamica'),
+          tomografia: getExamData('tomografia'),
+          raiox: getExamData('raiox'),
+          ressonancia: getExamData('ressonancia'),
+          ultrassom: getExamData('ultrassom')
         };
-        totalMonthlyMB += monthlyMB;
+        
+        const customYears = parseInt(document.getElementById('custom-years').value) || 0;
+        if (customYears < 0) {
+          alert('Por favor, insira um número de anos positivo');
+          return;
+        }
+        
+        // Calcular totais
+        let totalMonthlyMB = 0;
+        const examResults = {};
+        
+        for (const [exam, data] of Object.entries(examData)) {
+          const monthlyMB = data.qtd * data.size;
+          examResults[exam] = {
+            monthlyMB: monthlyMB,
+            annualGB: (monthlyMB * 12) / 1024
+          };
+          totalMonthlyMB += monthlyMB;
+        }
+        
+        if (totalMonthlyMB === 0) {
+          alert('Por favor, insira dados para pelo menos um tipo de exame');
+          return;
+        }
+        
+        const annualGB = (totalMonthlyMB * 12) / 1024;
+        
+        // Atualizar resultados
+        updateResults(annualGB, customYears);
+        
+        // Atualizar gráficos
+        updateCharts(examResults, annualGB, customYears);
+        
+        // Mostrar seção de resultados
+        resultsSection.style.display = 'block';
+        resultsSection.scrollIntoView({ behavior: 'smooth' });
+        
+      } catch (error) {
+        console.error('Erro no cálculo:', error);
+        alert('Ocorreu um erro ao calcular. Verifique os dados inseridos.');
       }
-      
-      const annualGB = (totalMonthlyMB * 12) / 1024;
-      
-      // Atualizar resultados
-      updateResults(annualGB, customYears);
-      
-      // Atualizar gráficos
-      updateCharts(examResults, annualGB, customYears);
-      
-      // Mostrar seção de resultados
-      resultsSection.style.display = 'block';
-      
-      // Rolagem suave para os resultados
-      resultsSection.scrollIntoView({ behavior: 'smooth' });
     }
     
     // Helper para obter dados de cada exame
     function getExamData(examName) {
-      return {
-        qtd: parseInt(document.getElementById(`${examName}-qtd`).value) || 0,
-        size: parseFloat(document.getElementById(`${examName}-size`).value) || 0
-      };
+      const qtd = validatePositiveNumber(
+        document.getElementById(`${examName}-qtd`).value,
+        `quantidade de ${examName}`
+      );
+      
+      const size = validatePositiveNumber(
+        document.getElementById(`${examName}-size`).value,
+        `tamanho de ${examName}`
+      );
+      
+      return { qtd, size };
     }
     
     // Atualiza os resultados na tela
@@ -240,9 +271,114 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
     
     // Gerar PDF
-    function generatePdf() {
-      alert('Relatório PDF será gerado aqui!');
-      // Implementação real deve ser feita no servidor
+    async function generatePdf() {
+      try {
+        if (!distributionChart || !growthChart) {
+          alert('Por favor, calcule a projeção antes de gerar o PDF');
+          return;
+        }
+        
+        // Mostrar loading
+        const pdfBtn = document.getElementById('generate-pdf');
+        const originalText = pdfBtn.innerHTML;
+        pdfBtn.innerHTML = '<span class="loading">Gerando PDF...</span>';
+        pdfBtn.disabled = true;
+
+        // Capturar dados necessários
+        const examData = {};
+        const examTypes = ['mamografia', 'hemodinamica', 'tomografia', 'raiox', 'ressonancia', 'ultrassom'];
+        
+        examTypes.forEach(exam => {
+          examData[exam] = {
+            qtd: parseInt(document.getElementById(`${exam}-qtd`).value) || 0,
+            size: parseFloat(document.getElementById(`${exam}-size`).value) || 0
+          };
+        });
+
+        const results = {
+          annual: document.getElementById('annual-result').textContent,
+          year1: document.getElementById('1year-result').textContent,
+          year5: document.getElementById('5years-result').textContent,
+          year10: document.getElementById('10years-result').textContent,
+          year20: document.getElementById('20years-result').textContent,
+          custom: {
+            years: document.getElementById('custom-years').value,
+            value: document.getElementById('custom-result').textContent
+          }
+        };
+
+        // Capturar gráficos como imagens
+        const chartImages = await captureCharts();
+
+        // Enviar dados para o servidor gerar o PDF
+        const response = await fetch('/generate-pdf', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            examData,
+            results,
+            chartImages,
+            date: new Date().toLocaleDateString('pt-BR')
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Erro no servidor: ${response.status}`);
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        
+        // Criar link para download
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `relatorio_pacs_${new Date().toISOString().split('T')[0]}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+
+      } catch (error) {
+        console.error('Erro ao gerar PDF:', error);
+        alert('Erro ao gerar o PDF: ' + error.message);
+      } finally {
+        // Restaurar botão
+        const pdfBtn = document.getElementById('generate-pdf');
+        if (pdfBtn) {
+          pdfBtn.innerHTML = originalText;
+          pdfBtn.disabled = false;
+        }
+      }
+    }
+
+    // Função para capturar gráficos como imagens
+    async function captureCharts() {
+      try {
+        const charts = {
+          distribution: document.getElementById('distributionChart'),
+          growth: document.getElementById('growthChart')
+        };
+
+        const images = {};
+
+        for (const [name, chart] of Object.entries(charts)) {
+          if (chart) {
+            const canvas = await html2canvas(chart, {
+              scale: 2,
+              logging: false,
+              useCORS: true
+            });
+            images[name] = canvas.toDataURL('image/png');
+          }
+        }
+
+        return images;
+      } catch (error) {
+        console.error('Erro ao capturar gráficos:', error);
+        throw new Error('Falha ao capturar gráficos para o PDF');
+      }
     }
     
     console.log('Aplicação inicializada com sucesso');

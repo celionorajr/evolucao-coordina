@@ -76,32 +76,27 @@ h2 {
   width: 100%;
 }
 
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 25px;
+.exam-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 15px;
   margin-bottom: 25px;
 }
 
-.input-group {
-  margin-bottom: 20px;
-}
-
-.input-group label {
-  display: block;
-  margin-bottom: 10px;
-  font-weight: 500;
+.exam-table th {
+  text-align: left;
+  padding: 0 15px 10px 0;
   color: var(--primary-color);
+  font-weight: 500;
   font-size: 1rem;
 }
 
-.input-row {
-  display: flex;
-  gap: 15px;
+.exam-table td {
+  padding: 0 15px 0 0;
 }
 
-.input-row input {
-  flex: 1;
+.exam-table input {
+  width: 100%;
   padding: 12px 15px;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -110,7 +105,7 @@ h2 {
   transition: all 0.3s;
 }
 
-.input-row input:focus {
+.exam-table input:focus {
   border-color: var(--secondary-color);
   outline: none;
   box-shadow: 0 0 0 3px rgba(36, 206, 197, 0.2);
@@ -285,17 +280,37 @@ h2 {
     margin: 0 auto;
   }
   
-  .form-grid {
-    grid-template-columns: 1fr;
+  .exam-table {
+    display: block;
+  }
+  
+  .exam-table thead {
+    display: none;
+  }
+  
+  .exam-table tbody, .exam-table tr, .exam-table td {
+    display: block;
+    width: 100%;
+  }
+  
+  .exam-table tr {
+    margin-bottom: 20px;
+  }
+  
+  .exam-table td {
+    padding: 5px 0;
+  }
+  
+  .exam-table td:before {
+    content: attr(data-label);
+    display: inline-block;
+    width: 120px;
+    font-weight: 500;
+    color: var(--primary-color);
   }
   
   .results-grid {
     grid-template-columns: 1fr 1fr;
-  }
-  
-  .input-row {
-    flex-direction: column;
-    gap: 10px;
   }
   
   .chart-wrapper {

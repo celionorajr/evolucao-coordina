@@ -18,61 +18,82 @@
             <section class="input-section">
                 <h2>Dados dos Exames</h2>
                 <form id="storageForm">
-                    <div class="form-grid">
-                        <!-- Mamografia -->
-                        <div class="input-group">
-                            <label for="mamografia-qtd">Mamografia</label>
-                            <div class="input-row">
-                                <input type="number" id="mamografia-qtd" placeholder="Qtd/mês" min="0">
-                                <input type="number" id="mamografia-size" placeholder="Tamanho (MB)" min="0" step="0.01">
-                            </div>
-                        </div>
+                    <table class="exam-table">
+                        <thead>
+                            <tr>
+                                <th>Tipo de Exame</th>
+                                <th>Quantidade por Mês</th>
+                                <th>Tamanho Médio (MB)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Mamografia -->
+                            <tr>
+                                <td data-label="Tipo de Exame">Mamografia</td>
+                                <td data-label="Quantidade por Mês">
+                                    <input type="number" id="mamografia-qtd" placeholder="Qtd/mês" min="0">
+                                </td>
+                                <td data-label="Tamanho Médio (MB)">
+                                    <input type="number" id="mamografia-size" placeholder="Tamanho (MB)" min="0" step="0.01">
+                                </td>
+                            </tr>
 
-                        <!-- Hemodinâmica -->
-                        <div class="input-group">
-                            <label for="hemodinamica-qtd">Hemodinâmica</label>
-                            <div class="input-row">
-                                <input type="number" id="hemodinamica-qtd" placeholder="Qtd/mês" min="0">
-                                <input type="number" id="hemodinamica-size" placeholder="Tamanho (MB)" min="0" step="0.01">
-                            </div>
-                        </div>
+                            <!-- Hemodinâmica -->
+                            <tr>
+                                <td data-label="Tipo de Exame">Hemodinâmica</td>
+                                <td data-label="Quantidade por Mês">
+                                    <input type="number" id="hemodinamica-qtd" placeholder="Qtd/mês" min="0">
+                                </td>
+                                <td data-label="Tamanho Médio (MB)">
+                                    <input type="number" id="hemodinamica-size" placeholder="Tamanho (MB)" min="0" step="0.01">
+                                </td>
+                            </tr>
 
-                        <!-- Tomografia -->
-                        <div class="input-group">
-                            <label for="tomografia-qtd">Tomografia</label>
-                            <div class="input-row">
-                                <input type="number" id="tomografia-qtd" placeholder="Qtd/mês" min="0">
-                                <input type="number" id="tomografia-size" placeholder="Tamanho (MB)" min="0" step="0.01">
-                            </div>
-                        </div>
+                            <!-- Tomografia -->
+                            <tr>
+                                <td data-label="Tipo de Exame">Tomografia</td>
+                                <td data-label="Quantidade por Mês">
+                                    <input type="number" id="tomografia-qtd" placeholder="Qtd/mês" min="0">
+                                </td>
+                                <td data-label="Tamanho Médio (MB)">
+                                    <input type="number" id="tomografia-size" placeholder="Tamanho (MB)" min="0" step="0.01">
+                                </td>
+                            </tr>
 
-                        <!-- Raio-X -->
-                        <div class="input-group">
-                            <label for="raiox-qtd">Raio-X</label>
-                            <div class="input-row">
-                                <input type="number" id="raiox-qtd" placeholder="Qtd/mês" min="0">
-                                <input type="number" id="raiox-size" placeholder="Tamanho (MB)" min="0" step="0.01">
-                            </div>
-                        </div>
+                            <!-- Raio-X -->
+                            <tr>
+                                <td data-label="Tipo de Exame">Raio-X</td>
+                                <td data-label="Quantidade por Mês">
+                                    <input type="number" id="raiox-qtd" placeholder="Qtd/mês" min="0">
+                                </td>
+                                <td data-label="Tamanho Médio (MB)">
+                                    <input type="number" id="raiox-size" placeholder="Tamanho (MB)" min="0" step="0.01">
+                                </td>
+                            </tr>
 
-                        <!-- Ressonância -->
-                        <div class="input-group">
-                            <label for="ressonancia-qtd">Ressonância</label>
-                            <div class="input-row">
-                                <input type="number" id="ressonancia-qtd" placeholder="Qtd/mês" min="0">
-                                <input type="number" id="ressonancia-size" placeholder="Tamanho (MB)" min="0" step="0.01">
-                            </div>
-                        </div>
+                            <!-- Ressonância -->
+                            <tr>
+                                <td data-label="Tipo de Exame">Ressonância</td>
+                                <td data-label="Quantidade por Mês">
+                                    <input type="number" id="ressonancia-qtd" placeholder="Qtd/mês" min="0">
+                                </td>
+                                <td data-label="Tamanho Médio (MB)">
+                                    <input type="number" id="ressonancia-size" placeholder="Tamanho (MB)" min="0" step="0.01">
+                                </td>
+                            </tr>
 
-                        <!-- Ultrassom -->
-                        <div class="input-group">
-                            <label for="ultrassom-qtd">Ultrassom</label>
-                            <div class="input-row">
-                                <input type="number" id="ultrassom-qtd" placeholder="Qtd/mês" min="0">
-                                <input type="number" id="ultrassom-size" placeholder="Tamanho (MB)" min="0" step="0.01">
-                            </div>
-                        </div>
-                    </div>
+                            <!-- Ultrassom -->
+                            <tr>
+                                <td data-label="Tipo de Exame">Ultrassom</td>
+                                <td data-label="Quantidade por Mês">
+                                    <input type="number" id="ultrassom-qtd" placeholder="Qtd/mês" min="0">
+                                </td>
+                                <td data-label="Tamanho Médio (MB)">
+                                    <input type="number" id="ultrassom-size" placeholder="Tamanho (MB)" min="0" step="0.01">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
 
                     <div class="custom-years">
                         <label for="custom-years">Período personalizado (anos):</label>
@@ -146,8 +167,8 @@
             <p>Desenvolvido por Célio Nora Junior | Analista de Suporte Técnico</p>
         </footer>
     </div>
-	
-	<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script src="/libs/chart.min.js"></script>
     <script src="/js/script.js"></script>
 </body>

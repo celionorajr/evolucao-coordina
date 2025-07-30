@@ -7,17 +7,12 @@ const PORT = process.env.PORT || 8081;
 
 // Middleware
 app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static(path.join(__dirname, '../public')));
-app.use(express.static(path.join(__dirname, '../views')));
 
 // Rota principal
 app.get('/', (req, res) => {
-    try {
-        res.sendFile(path.join(__dirname, '../views/index.html'));
-    } catch (error) {
-        console.error('Erro ao carregar página principal:', error);
-        res.status(500).send('Erro ao carregar a página');
-    }
+    res.sendFile(path.join(__dirname, '../views/index.html'));
 });
 
 // Rota para gerar PDF
@@ -65,6 +60,4 @@ app.use((err, req, res, next) => {
 // Iniciar servidor
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
-}).on('error', (err) => {
-    console.error('Erro ao iniciar servidor:', err);
 });

@@ -1,11 +1,12 @@
 const puppeteer = require('puppeteer');
 const path = require('path');
+const fs = require('fs');
 
 async function generatePdf(examData, results, date, chartImages = {}) {
     let browser;
     
     try {
-        // Configuração do Puppeteer para produção
+        // Configuração otimizada do Puppeteer
         browser = await puppeteer.launch({
             headless: 'new',
             args: [
@@ -17,21 +18,33 @@ async function generatePdf(examData, results, date, chartImages = {}) {
                 '--no-zygote',
                 '--single-process'
             ],
-            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || puppeteer.executablePath()
+            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || puppeteer.executablePath(),
+            timeout: 60000 // Aumentar timeout para 60 segundos
         });
         
         const page = await browser.newPage();
         
         // Configurar viewport
-        await page.setViewport({ width: 1200, height: 1800 });
+        await page.setViewport({ width: 1200, height: 1800, deviceScaleFactor: 2 });
+        
+        // Carregar a logo como base64
+        const logoPath = path.join(__dirname, '../public/logos/polos-logo.png');
+        let logoBase64 = '';
+        
+        try {
+            const logoFile = fs.readFileSync(logoPath);
+            logoBase64 = `data:image/png;base64,${logoFile.toString('base64')}`;
+        } catch (error) {
+            console.error('Erro ao carregar a logo:', error);
+        }
         
         // Criar HTML para o PDF
-        const htmlContent = buildPdfHtml(examData, results, date, chartImages);
+        const htmlContent = buildPdfHtml(examData, results, date, chartImages, logoBase64);
         
         // Configurar conteúdo
         await page.setContent(htmlContent, {
             waitUntil: ['domcontentloaded', 'networkidle0'],
-            timeout: 30000
+            timeout: 60000
         });
         
         // Gerar PDF
@@ -39,12 +52,12 @@ async function generatePdf(examData, results, date, chartImages = {}) {
             format: 'A4',
             printBackground: true,
             margin: {
-                top: '30mm',
-                right: '20mm',
-                bottom: '30mm',
-                left: '20mm'
+                top: '20mm',
+                right: '15mm',
+                bottom: '20mm',
+                left: '15mm'
             },
-            timeout: 30000
+            timeout: 60000
         });
         
         return pdfBuffer;
@@ -58,21 +71,10 @@ async function generatePdf(examData, results, date, chartImages = {}) {
     }
 }
 
-function buildPdfHtml(examData, results, date, chartImages) {
+function buildPdfHtml(examData, results, date, chartImages, logoBase64) {
     // Calcular totais
     let totalMonthlyMB = 0;
     const examDetails = [];
-	
-	// Carrega a logo como base64
-    const logoPath = path.join(__dirname, '../public/logos/polos-logo.png');
-    let logoBase64 = '';
-    
-    try {
-        const logoFile = fs.readFileSync(logoPath);
-        logoBase64 = `data:image/png;base64,${logoFile.toString('base64')}`;
-    } catch (error) {
-        console.error('Erro ao carregar a logo:', error);
-    }
     
     // Processar dados dos exames
     for (const [exam, data] of Object.entries(examData)) {
@@ -97,10 +99,10 @@ function buildPdfHtml(examData, results, date, chartImages) {
     const examsTableRows = examDetails.map(exam => `
         <tr>
             <td>${exam.name}</td>
-            <td>${exam.qtd}</td>
-            <td>${exam.size} MB</td>
-            <td>${exam.monthlyMB} MB</td>
-            <td>${exam.annualGB} GB</td>
+            <td class="text-center">${exam.qtd}</td>
+            <td class="text-right">${exam.size} MB</td>
+            <td class="text-right">${exam.monthlyMB} MB</td>
+            <td class="text-right">${exam.annualGB} GB</td>
         </tr>
     `).join('');
     
@@ -120,14 +122,6 @@ function buildPdfHtml(examData, results, date, chartImages) {
         });
     }
     
-    // Gerar linhas da tabela de resultados
-    const resultsTableRows = periods.map(period => `
-        <tr>
-            <td>${period.label}</td>
-            <td>${period.value}</td>
-        </tr>
-    `).join('');
-
     // HTML completo do relatório
     return `
         <!DOCTYPE html>
@@ -138,60 +132,73 @@ function buildPdfHtml(examData, results, date, chartImages) {
             <title>Relatório PACS</title>
             <style>
                 body {
-                    font-family: Arial, sans-serif;
+                    font-family: 'Poppins', Arial, sans-serif;
                     color: #333;
                     line-height: 1.6;
-                    padding: 20px;
+                    padding: 0;
+                    margin: 0;
                 }
                 
                 .header {
                     text-align: center;
-                    margin-bottom: 30px;
+                    margin-bottom: 20px;
+                    padding-top: 20px;
                 }
                 
                 .logo {
-                    height: 70px;
-                    margin-bottom: 15px;
+                    height: 60px;
+                    margin-bottom: 10px;
                 }
                 
                 h1 {
                     color: #055a71;
-                    font-size: 24px;
-                    margin: 10px 0;
+                    font-size: 22px;
+                    margin: 5px 0 15px;
+                    font-weight: 600;
                 }
                 
                 h2 {
                     color: #055a71;
-                    font-size: 18px;
-                    margin: 25px 0 15px;
-                    border-bottom: 2px solid #24cec5;
+                    font-size: 16px;
+                    margin: 25px 0 10px;
                     padding-bottom: 5px;
+                    border-bottom: 2px solid #24cec5;
+                    font-weight: 500;
                 }
                 
                 .report-info {
-                    margin-bottom: 25px;
-                    font-size: 14px;
+                    margin-bottom: 20px;
+                    font-size: 12px;
                     color: #666;
-                    text-align: center;
                 }
                 
                 table {
                     width: 100%;
                     border-collapse: collapse;
-                    margin: 20px 0;
-                    font-size: 12px;
+                    margin: 15px 0;
+                    font-size: 11px;
+                    page-break-inside: avoid;
                 }
                 
                 th, td {
                     border: 1px solid #ddd;
-                    padding: 10px;
+                    padding: 8px 10px;
                     text-align: left;
                 }
                 
                 th {
                     background-color: #055a71;
                     color: white;
-                    font-weight: bold;
+                    font-weight: 500;
+                    text-align: center;
+                }
+                
+                .text-center {
+                    text-align: center;
+                }
+                
+                .text-right {
+                    text-align: right;
                 }
                 
                 tr:nth-child(even) {
@@ -199,104 +206,125 @@ function buildPdfHtml(examData, results, date, chartImages) {
                 }
                 
                 .footer {
-                    margin-top: 40px;
-                    font-size: 11px;
+                    margin-top: 30px;
+                    font-size: 10px;
                     color: #666;
                     text-align: center;
+                    padding-top: 10px;
                     border-top: 1px solid #ddd;
-                    padding-top: 15px;
                 }
                 
                 .summary {
-                    background-color: #f0f8ff;
+                    background-color: #f5fbfb;
                     padding: 15px;
                     border-radius: 5px;
-                    margin: 25px 0;
+                    margin: 20px 0;
                     border-left: 4px solid #24cec5;
                 }
                 
                 .summary p {
-                    margin: 8px 0;
-                    font-size: 14px;
+                    margin: 5px 0;
+                    font-size: 12px;
                 }
                 
                 .highlight {
-                    font-weight: bold;
+                    font-weight: 600;
                     color: #055a71;
                 }
                 
                 .chart-container {
-                    margin: 30px 0;
-                    text-align: center;
+                    margin: 25px 0;
+                    page-break-inside: avoid;
                 }
                 
                 .chart-container img {
                     max-width: 100%;
                     height: auto;
-                    border: 1px solid #eee;
                     margin: 10px 0;
+                    border: 1px solid #eee;
+                    display: block;
                 }
                 
                 .chart-title {
-                    font-weight: bold;
+                    font-weight: 500;
                     color: #055a71;
-                    margin-bottom: 10px;
+                    margin-bottom: 5px;
+                    font-size: 14px;
+                }
+                
+                .section {
+                    margin-bottom: 30px;
+                }
+                
+                @page {
+                    margin: 20mm 15mm;
                 }
             </style>
         </head>
         <body>
             <div class="header">
-                <img src="file://${path.join(__dirname, '../public/logos/polos-logo.png')}" class="logo" alt="Polos Tecnologia">
+                ${logoBase64 ? `<img src="${logoBase64}" class="logo" alt="Polos Tecnologia">` : ''}
                 <h1>Relatório de Projeção de Armazenamento PACS</h1>
                 <div class="report-info">
                     <p><strong>Data de geração:</strong> ${date}</p>
                 </div>
             </div>
             
-            <div class="summary">
-                <h2>Resumo Executivo</h2>
-                <p><strong>Total de armazenamento mensal:</strong> <span class="highlight">${(totalMonthlyMB / 1024).toFixed(2)} GB</span></p>
-                <p><strong>Armazenamento anual projetado:</strong> <span class="highlight">${results.annual}</span></p>
+            <div class="section">
+                <div class="summary">
+                    <h2>Resumo Executivo</h2>
+                    <p><strong>Total de armazenamento mensal:</strong> <span class="highlight">${(totalMonthlyMB / 1024).toFixed(2)} GB</span></p>
+                    <p><strong>Armazenamento anual projetado:</strong> <span class="highlight">${results.annual}</span></p>
+                </div>
             </div>
             
-            <h2>Detalhes por Tipo de Exame</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Tipo de Exame</th>
-                        <th>Quantidade Mensal</th>
-                        <th>Tamanho por Exame</th>
-                        <th>Armazenamento Mensal</th>
-                        <th>Armazenamento Anual</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${examsTableRows}
-                </tbody>
-            </table>
+            <div class="section">
+                <h2>Detalhes por Tipo de Exame</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tipo de Exame</th>
+                            <th>Qtd. Mensal</th>
+                            <th>Tamanho (MB)</th>
+                            <th>Armazen. Mensal</th>
+                            <th>Armazen. Anual</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${examsTableRows}
+                    </tbody>
+                </table>
+            </div>
             
             ${chartImages.distribution ? `
-            <div class="chart-container">
+            <div class="section chart-container">
                 <div class="chart-title">Distribuição por Tipo de Exame</div>
                 <img src="${chartImages.distribution}" alt="Gráfico de Distribuição">
             </div>
             ` : ''}
             
-            <h2>Projeção de Armazenamento</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Período</th>
-                        <th>Armazenamento Projetado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${resultsTableRows}
-                </tbody>
-            </table>
+            <div class="section">
+                <h2>Projeção de Armazenamento</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Período</th>
+                            <th>Armazenamento Projetado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${periods.map(period => `
+                        <tr>
+                            <td>${period.label}</td>
+                            <td class="text-right">${period.value}</td>
+                        </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
             
             ${chartImages.growth ? `
-            <div class="chart-container">
+            <div class="section chart-container">
                 <div class="chart-title">Projeção de Crescimento</div>
                 <img src="${chartImages.growth}" alt="Gráfico de Crescimento">
             </div>

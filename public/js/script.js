@@ -319,12 +319,12 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Gerar PDF
     async function generatePdf() {
-      try {
+    try {
         if (!distributionChart || !growthChart) {
-          alert('Por favor, calcule a projeção antes de gerar o PDF');
-          return;
+            alert('Por favor, calcule a projeção antes de gerar o PDF');
+            return;
         }
-        
+
         // Mostrar loading
         const pdfBtn = document.getElementById('generate-pdf');
         const originalText = pdfBtn.innerHTML;
@@ -336,22 +336,22 @@ document.addEventListener('DOMContentLoaded', async function() {
         const examTypes = ['mamografia', 'hemodinamica', 'tomografia', 'raiox', 'ressonancia', 'ultrassom'];
         
         examTypes.forEach(exam => {
-          examData[exam] = {
-            qtd: parseInt(document.getElementById(`${exam}-qtd`).value) || 0,
-            size: parseFloat(document.getElementById(`${exam}-size`).value) || 0
-          };
+            examData[exam] = {
+                qtd: parseInt(document.getElementById(`${exam}-qtd`).value) || 0,
+                size: parseFloat(document.getElementById(`${exam}-size`).value) || 0
+            };
         });
 
         const results = {
-          annual: document.getElementById('annual-result').textContent,
-          year1: document.getElementById('1year-result').textContent,
-          year5: document.getElementById('5years-result').textContent,
-          year10: document.getElementById('10years-result').textContent,
-          year20: document.getElementById('20years-result').textContent,
-          custom: {
-            years: document.getElementById('custom-years').value,
-            value: document.getElementById('custom-result').textContent
-          }
+            annual: document.getElementById('annual-result').textContent,
+            year1: document.getElementById('1year-result').textContent,
+            year5: document.getElementById('5years-result').textContent,
+            year10: document.getElementById('10years-result').textContent,
+            year20: document.getElementById('20years-result').textContent,
+            custom: {
+                years: document.getElementById('custom-years').value,
+                value: document.getElementById('custom-result').textContent
+            }
         };
 
         // Capturar gráficos como imagens
@@ -359,20 +359,20 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         // Enviar dados para o servidor gerar o PDF
         const response = await fetch('/generate-pdf', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            examData,
-            results,
-            chartImages,
-            date: new Date().toLocaleDateString('pt-BR')
-          })
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                examData,
+                results,
+                chartImages,
+                date: new Date().toLocaleDateString('pt-BR')
+            })
         });
 
         if (!response.ok) {
-          throw new Error(`Erro no servidor: ${response.status}`);
+            throw new Error(`Erro no servidor: ${response.status}`);
         }
 
         const blob = await response.blob();
@@ -387,18 +387,18 @@ document.addEventListener('DOMContentLoaded', async function() {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
 
-      } catch (error) {
+    } catch (error) {
         console.error('Erro ao gerar PDF:', error);
         alert('Erro ao gerar o PDF: ' + error.message);
-      } finally {
+    } finally {
         // Restaurar botão
         const pdfBtn = document.getElementById('generate-pdf');
         if (pdfBtn) {
-          pdfBtn.innerHTML = originalText;
-          pdfBtn.disabled = false;
+            pdfBtn.innerHTML = originalText;
+            pdfBtn.disabled = false;
         }
-      }
     }
+}
 
     // Função para capturar gráficos como imagens
     async function captureCharts() {

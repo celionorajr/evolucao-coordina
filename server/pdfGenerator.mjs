@@ -6,7 +6,7 @@ import fs from 'fs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-async function generatePdf(unitName, examData, results, date, chartImages = {}) {
+export async function generatePdf(unitName, examData, results, date, chartImages = {}) {
     let browser;
     
     try {
@@ -138,114 +138,28 @@ function buildPdfHtml(unitName, examData, results, date, chartImages, logoBase64
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Relatório PACS</title>
             <style>
-                body {
-                    font-family: 'Poppins', Arial, sans-serif;
-                    color: #333;
-                    line-height: 1.6;
-                    padding: 0;
-                    margin: 0;
-                }
-                .header {
-                    text-align: center;
-                    margin-bottom: 20px;
-                    padding-top: 20px;
-                }
-                .logo {
-                    height: 60px;
-                    margin-bottom: 10px;
-                }
-                h1 {
-                    color: #055a71;
-                    font-size: 22px;
-                    margin: 5px 0 15px;
-                    font-weight: 600;
-                }
-                h2 {
-                    color: #055a71;
-                    font-size: 16px;
-                    margin: 25px 0 10px;
-                    padding-bottom: 5px;
-                    border-bottom: 2px solid #24cec5;
-                    font-weight: 500;
-                }
-                .report-info {
-                    margin-bottom: 20px;
-                    font-size: 12px;
-                    color: #666;
-                }
-                table {
-                    width: 100%;
-                    border-collapse: collapse;
-                    margin: 15px 0;
-                    font-size: 11px;
-                    page-break-inside: avoid;
-                }
-                th, td {
-                    border: 1px solid #ddd;
-                    padding: 8px 10px;
-                }
-                th {
-                    background-color: #055a71;
-                    color: white;
-                    font-weight: 500;
-                    text-align: center;
-                }
-                .text-center {
-                    text-align: center;
-                }
-                .text-right {
-                    text-align: right;
-                }
-                tr:nth-child(even) {
-                    background-color: #f9f9f9;
-                }
-                .footer {
-                    margin-top: 30px;
-                    font-size: 10px;
-                    color: #666;
-                    text-align: center;
-                    padding-top: 10px;
-                    border-top: 1px solid #ddd;
-                }
-                .summary {
-                    background-color: #f5fbfb;
-                    padding: 15px;
-                    border-radius: 5px;
-                    margin: 20px 0;
-                    border-left: 4px solid #24cec5;
-                }
-                .summary p {
-                    margin: 5px 0;
-                    font-size: 12px;
-                }
-                .highlight {
-                    font-weight: 600;
-                    color: #055a71;
-                }
-                .chart-container {
-                    margin: 25px 0;
-                    page-break-inside: avoid;
-                }
-                .chart-container img {
-                    max-width: 100%;
-                    max-height: 450px;
-                    height: auto;
-                    margin: 10px 0;
-                    border: 1px solid #eee;
-                    display: block;
-                }
-                .chart-title {
-                    font-weight: 500;
-                    color: #055a71;
-                    margin-bottom: 5px;
-                    font-size: 14px;
-                }
-                .section {
-                    margin-bottom: 30px;
-                }
-                @page {
-                    margin: 20mm 15mm;
-                }
+                /* Estilos mantidos iguais ao seu original */
+                body { font-family: 'Poppins', Arial, sans-serif; color: #333; line-height: 1.6; padding: 0; margin: 0; }
+                .header { text-align: center; margin-bottom: 20px; padding-top: 20px; }
+                .logo { height: 60px; margin-bottom: 10px; }
+                h1 { color: #055a71; font-size: 22px; margin: 5px 0 15px; font-weight: 600; }
+                h2 { color: #055a71; font-size: 16px; margin: 25px 0 10px; padding-bottom: 5px; border-bottom: 2px solid #24cec5; font-weight: 500; }
+                .report-info { margin-bottom: 20px; font-size: 12px; color: #666; }
+                table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 11px; page-break-inside: avoid; }
+                th, td { border: 1px solid #ddd; padding: 8px 10px; }
+                th { background-color: #055a71; color: white; font-weight: 500; text-align: center; }
+                .text-center { text-align: center; }
+                .text-right { text-align: right; }
+                tr:nth-child(even) { background-color: #f9f9f9; }
+                .footer { margin-top: 30px; font-size: 10px; color: #666; text-align: center; padding-top: 10px; border-top: 1px solid #ddd; }
+                .summary { background-color: #f5fbfb; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #24cec5; }
+                .summary p { margin: 5px 0; font-size: 12px; }
+                .highlight { font-weight: 600; color: #055a71; }
+                .chart-container { margin: 25px 0; page-break-inside: avoid; }
+                .chart-container img { max-width: 100%; max-height: 450px; height: auto; margin: 10px 0; border: 1px solid #eee; display: block; }
+                .chart-title { font-weight: 500; color: #055a71; margin-bottom: 5px; font-size: 14px; }
+                .section { margin-bottom: 30px; }
+                @page { margin: 20mm 15mm; }
             </style>
         </head>
         <body>
@@ -326,5 +240,3 @@ function buildPdfHtml(unitName, examData, results, date, chartImages, logoBase64
         </html>
     `;
 }
-
-export { generatePdf };

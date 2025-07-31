@@ -4,23 +4,23 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { generatePdf } from './pdfGenerator.mjs';
 
+// Configuração de caminhos
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 8081;
 
-// Middleware
+// Middlewares
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Rota principal
+// Rotas
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../views/index.html'));
 });
 
-// Rota para gerar PDF
 app.post('/generate-pdf', async (req, res) => {
     try {
         const { unitName, examData, results, chartImages, date } = req.body;
@@ -51,12 +51,11 @@ app.post('/generate-pdf', async (req, res) => {
     }
 });
 
-// Middleware para erros 404
+// Tratamento de erros
 app.use((req, res) => {
     res.status(404).send('Página não encontrada');
 });
 
-// Middleware para tratamento de erros
 app.use((err, req, res, next) => {
     console.error('Erro interno:', err);
     res.status(500).send('Ocorreu um erro interno no servidor');
@@ -65,4 +64,5 @@ app.use((err, req, res, next) => {
 // Iniciar servidor
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
+    console.log(`Modo: ${process.env.NODE_ENV || 'development'}`);
 });

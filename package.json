@@ -2,11 +2,11 @@
   "name": "evolucao-coordina",
   "version": "2.0.0",
   "description": "Sistema de Projeção de Armazenamento PACS",
-  "main": "server/app.js",
+  "main": "server/app.mjs",
   "type": "module",
   "scripts": {
-    "start": "node server/app.js",
-    "dev": "nodemon server/app.js",
+    "start": "node --experimental-specifier-resolution=node server/app.mjs",
+    "dev": "nodemon --experimental-specifier-resolution=node server/app.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {

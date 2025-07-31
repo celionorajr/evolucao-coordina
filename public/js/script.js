@@ -54,12 +54,12 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Médias diárias fixas
     const dailyAverages = {
-        ressonancia: 10,
-        tomografia: 65,
-        raiox: 60,
-        ultrassom: 50,
-        densitometria: 10,
-        hemodinamica: 10
+        ressonancia: 20,
+        tomografia: 75,
+        raiox: 70,
+        ultrassom: 60,
+        densitometria: 20,
+        hemodinamica: 20
     };
     
     // Variáveis para os gráficos

@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { generatePdf } from './pdfGenerator.mjs';
 
+
 // Configuração de caminhos
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,6 +16,12 @@ const PORT = process.env.PORT || 8081;
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static(path.join(__dirname, '../public')));
+
+
+// Rota do favicon 
+app.get('/favicon.ico', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/favicon.ico'));
+});
 
 // Rotas
 app.get('/', (req, res) => {

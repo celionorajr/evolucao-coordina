@@ -27,14 +27,12 @@ function validatePositiveNumber(value, fieldName) {
 // Função para ajustar gráficos em telas pequenas
 function adjustChartsForMobile() {
   if (window.innerWidth <= 768) {
-    // Ajuste para o gráfico de pizza
     if (distributionChart) {
       distributionChart.options.plugins.legend.position = 'bottom';
       distributionChart.options.plugins.legend.labels.font.size = 10;
       distributionChart.update();
     }
     
-    // Ajuste para o gráfico de barras
     if (growthChart) {
       growthChart.options.scales.x.title.font.size = 10;
       growthChart.options.scales.y.title.font.size = 10;
@@ -45,14 +43,11 @@ function adjustChartsForMobile() {
 
 document.addEventListener('DOMContentLoaded', async function() {
   try {
-    // Carrega Chart.js antes de iniciar a aplicação
     await loadChartJS();
     console.log('Chart.js carregado com sucesso');
     
-    // Atualizar ano no footer
     document.getElementById('current-year').textContent = new Date().getFullYear();
     
-    // Médias diárias fixas
     const dailyAverages = {
         ressonancia: 20,
         tomografia: 75,
@@ -62,23 +57,19 @@ document.addEventListener('DOMContentLoaded', async function() {
         hemodinamica: 20
     };
     
-    // Variáveis para os gráficos
     let distributionChart = null;
     let growthChart = null;
     
-    // Elementos do DOM
     const calculateBtn = document.getElementById('calculate-btn');
     const resetBtn = document.getElementById('reset-btn');
     const generatePdfBtn = document.getElementById('generate-pdf');
     const resultsSection = document.getElementById('resultsSection');
     
-    // Event listeners
     calculateBtn.addEventListener('click', calculateProjection);
     resetBtn.addEventListener('click', resetForm);
-    generatePdfBtn.addEventListener('click', generatePdf);
+    generatePdfBtn.addEventListener('click', handlePdfGeneration);
     window.addEventListener('resize', adjustChartsForMobile);
     
-    // Função principal de cálculo
     function calculateProjection() {
       try {
         const unitName = document.getElementById('unit-name').value;
@@ -87,7 +78,6 @@ document.addEventListener('DOMContentLoaded', async function() {
           return;
         }
         
-        // Obter valores dos inputs
         const examData = {
           ressonancia: getExamData('ressonancia'),
           tomografia: getExamData('tomografia'),
@@ -103,7 +93,6 @@ document.addEventListener('DOMContentLoaded', async function() {
           return;
         }
         
-        // Calcular totais
         let totalMonthlyMB = 0;
         const examResults = {};
         
@@ -129,16 +118,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         const annualGB = (totalMonthlyMB * 12) / 1024;
         
-        // Atualizar resultados
         updateResults(annualGB, customYears);
-        
-        // Atualizar gráficos
         updateCharts(examResults, annualGB, customYears);
-        
-        // Ajustar para mobile se necessário
         adjustChartsForMobile();
         
-        // Mostrar seção de resultados
         resultsSection.style.display = 'block';
         resultsSection.scrollIntoView({ behavior: 'smooth' });
         
@@ -148,17 +131,14 @@ document.addEventListener('DOMContentLoaded', async function() {
       }
     }
     
-    // Helper para obter dados de cada exame
     function getExamData(examName) {
       const size = validatePositiveNumber(
         document.getElementById(`${examName}-size`).value,
         `tamanho de ${examName}`
       );
-      
       return { size };
     }
     
-    // Atualiza os resultados na tela
     function updateResults(annualGB, customYears) {
       document.getElementById('annual-result').textContent = formatStorage(annualGB);
       document.getElementById('1year-result').textContent = formatStorage(annualGB * 1);
@@ -175,7 +155,6 @@ document.addEventListener('DOMContentLoaded', async function() {
       }
     }
     
-    // Formata valores de armazenamento
     function formatStorage(gb) {
       if (gb >= 1024) {
         const tb = gb / 1024;
@@ -184,13 +163,11 @@ document.addEventListener('DOMContentLoaded', async function() {
       return gb >= 100 ? `${gb.toFixed(0)} GB` : `${gb.toFixed(2)} GB`;
     }
     
-    // Atualiza os gráficos
     function updateCharts(examResults, annualGB, customYears) {
       updateDistributionChart(examResults);
       updateGrowthChart(annualGB, customYears);
     }
     
-    // Gráfico de distribuição
     function updateDistributionChart(examResults) {
       const ctx = document.getElementById('distributionChart').getContext('2d');
       const labels = [];
@@ -248,7 +225,6 @@ document.addEventListener('DOMContentLoaded', async function() {
       });
     }
     
-    // Gráfico de crescimento
     function updateGrowthChart(annualGB, customYears) {
       const ctx = document.getElementById('growthChart').getContext('2d');
       const years = [1, 5, 10, 20];
@@ -315,7 +291,6 @@ document.addEventListener('DOMContentLoaded', async function() {
       });
     }
     
-    // Resetar formulário
     function resetForm() {
       resultsSection.style.display = 'none';
       
@@ -330,121 +305,111 @@ document.addEventListener('DOMContentLoaded', async function() {
       }
     }
     
-    // Gerar PDF
-    async function generatePdf() {
+    async function handlePdfGeneration() {
+      const pdfBtn = document.getElementById('generate-pdf');
+      if (!pdfBtn) return;
+      
+      const originalText = pdfBtn.innerHTML;
+      pdfBtn.innerHTML = '<span class="loading">Gerando PDF...</span>';
+      pdfBtn.disabled = true;
+      
       try {
-        const unitName = document.getElementById('unit-name').value;
-        if (!unitName) {
-          alert('Por favor, informe o nome da unidade');
-          return;
-        }
-        
-        if (!distributionChart || !growthChart) {
-          alert('Por favor, calcule a projeção antes de gerar o PDF');
-          return;
-        }
-
-        // Mostrar loading
-        const pdfBtn = document.getElementById('generate-pdf');
-        const originalText = pdfBtn.innerHTML;
-        pdfBtn.innerHTML = '<span class="loading">Gerando PDF...</span>';
-        pdfBtn.disabled = true;
-
-        // Capturar dados necessários
-        const examData = {};
-        const examTypes = ['ressonancia', 'tomografia', 'raiox', 'ultrassom', 'densitometria', 'hemodinamica'];
-        
-        examTypes.forEach(exam => {
-          examData[exam] = {
-            size: parseFloat(document.getElementById(`${exam}-size`).value) || 0
-          };
-        });
-
-        const results = {
-          annual: document.getElementById('annual-result').textContent,
-          year1: document.getElementById('1year-result').textContent,
-          year5: document.getElementById('5years-result').textContent,
-          year10: document.getElementById('10years-result').textContent,
-          year20: document.getElementById('20years-result').textContent,
-          custom: {
-            years: document.getElementById('custom-years').value,
-            value: document.getElementById('custom-result').textContent
-          }
-        };
-
-        // Capturar gráficos como imagens
-        const chartImages = await captureCharts();
-
-        // Enviar dados para o servidor gerar o PDF
-        const response = await fetch('/generate-pdf', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            unitName,
-            examData,
-            results,
-            chartImages,
-            date: new Date().toLocaleDateString('pt-BR')
-          })
-        });
-
-        if (!response.ok) {
-          throw new Error(`Erro no servidor: ${response.status}`);
-        }
-
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        
-        // Criar link para download
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `relatorio_pacs_${unitName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-
+        await generatePdf();
       } catch (error) {
-        console.error('Erro ao gerar PDF:', error);
-        alert('Erro ao gerar o PDF: ' + error.message);
+        console.error('Erro na geração do PDF:', error);
+        alert('Erro ao gerar PDF: ' + error.message);
       } finally {
-        // Restaurar botão
-        const pdfBtn = document.getElementById('generate-pdf');
-        if (pdfBtn) {
-          pdfBtn.innerHTML = originalText;
-          pdfBtn.disabled = false;
-        }
+        pdfBtn.innerHTML = originalText;
+        pdfBtn.disabled = false;
       }
     }
-
-    // Função para capturar gráficos como imagens
-    async function captureCharts() {
-      try {
-        const charts = {
-          distribution: document.getElementById('distributionChart'),
-          growth: document.getElementById('growthChart')
+    
+    async function generatePdf() {
+      const unitName = document.getElementById('unit-name').value;
+      if (!unitName) {
+        throw new Error('Informe o nome da unidade');
+      }
+      
+      if (!distributionChart || !growthChart) {
+        throw new Error('Calcule a projeção antes de gerar o PDF');
+      }
+      
+      const examData = {};
+      const examTypes = ['ressonancia', 'tomografia', 'raiox', 'ultrassom', 'densitometria', 'hemodinamica'];
+      
+      examTypes.forEach(exam => {
+        examData[exam] = {
+          size: parseFloat(document.getElementById(`${exam}-size`).value) || 0
         };
-
-        const images = {};
-
-        for (const [name, chart] of Object.entries(charts)) {
-          if (chart) {
+      });
+      
+      const results = {
+        annual: document.getElementById('annual-result').textContent,
+        year1: document.getElementById('1year-result').textContent,
+        year5: document.getElementById('5years-result').textContent,
+        year10: document.getElementById('10years-result').textContent,
+        year20: document.getElementById('20years-result').textContent,
+        custom: {
+          years: document.getElementById('custom-years').value,
+          value: document.getElementById('custom-result').textContent
+        }
+      };
+      
+      const chartImages = await captureCharts();
+      
+      const response = await fetch('/generate-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          unitName,
+          examData,
+          results,
+          chartImages,
+          date: new Date().toLocaleDateString('pt-BR')
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Erro no servidor: ${response.status}`);
+      }
+      
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `relatorio_pacs_${unitName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+    
+    async function captureCharts() {
+      const charts = {
+        distribution: document.getElementById('distributionChart'),
+        growth: document.getElementById('growthChart')
+      };
+      
+      const images = {};
+      
+      for (const [name, chart] of Object.entries(charts)) {
+        if (chart) {
+          try {
             const canvas = await html2canvas(chart, {
               scale: 2,
               logging: false,
-              useCORS: true
+              useCORS: true,
+              allowTaint: true
             });
             images[name] = canvas.toDataURL('image/png');
+          } catch (error) {
+            console.error(`Erro ao capturar gráfico ${name}:`, error);
+            images[name] = '';
           }
         }
-
-        return images;
-      } catch (error) {
-        console.error('Erro ao capturar gráficos:', error);
-        throw new Error('Falha ao capturar gráficos para o PDF');
       }
+      
+      return images;
     }
     
     console.log('Aplicação inicializada com sucesso');

@@ -5,59 +5,28 @@ const { generatePdf } = require('./pdfGenerator');
 const app = express();
 const PORT = process.env.PORT || 8081;
 
-// Middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Rota principal
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../views/index.html'));
 });
 
-// Rota para gerar PDF
 app.post('/generate-pdf', async (req, res) => {
     try {
-        const { examData, results, chartImages, date } = req.body;
-        
-        if (!examData || !results) {
-            return res.status(400).json({
-                success: false,
-                message: 'Dados incompletos para geração do PDF'
-            });
+        const { unidade, html } = req.body;
+        if (!unidade || !html) {
+            return res.status(400).json({ error: 'Dados insuficientes para gerar PDF' });
         }
-
-        const pdfBuffer = await generatePdf(examData, results, date, chartImages);
-        
-        res.set({
-            'Content-Type': 'application/pdf',
-            'Content-Disposition': 'attachment; filename=relatorio_pacs.pdf',
-            'Content-Length': pdfBuffer.length
-        });
-        
-        res.send(pdfBuffer);
+        const pdfPath = await generatePdf(unidade, html);
+        res.status(200).json({ message: 'PDF gerado com sucesso', file: pdfPath });
     } catch (error) {
         console.error('Erro ao gerar PDF:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Erro ao gerar o PDF',
-            error: error.message
-        });
+        res.status(500).json({ error: 'Erro ao gerar o PDF' });
     }
 });
 
-// Middleware para erros 404
-app.use((req, res) => {
-    res.status(404).send('Página não encontrada');
-});
-
-// Middleware para tratamento de erros
-app.use((err, req, res, next) => {
-    console.error('Erro interno:', err);
-    res.status(500).send('Ocorreu um erro interno no servidor');
-});
-
-// Iniciar servidor
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
 });

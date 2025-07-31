@@ -61,11 +61,18 @@ body {
   gap: 30px;
 }
 
-h2 {
+h2, h3 {
   color: var(--primary-color);
   margin-bottom: 15px;
   font-weight: 600;
+}
+
+h2 {
   font-size: 1.5rem;
+}
+
+h3 {
+  font-size: 1.2rem;
 }
 
 .input-section {
@@ -76,11 +83,38 @@ h2 {
   width: 100%;
 }
 
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--primary-color);
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  transition: all 0.3s;
+}
+
+.form-group input:focus {
+  border-color: var(--secondary-color);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(36, 206, 197, 0.2);
+}
+
 .exam-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0 15px;
-  margin-bottom: 25px;
+  margin: 20px 0;
 }
 
 .exam-table th {

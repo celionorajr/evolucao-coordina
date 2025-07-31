@@ -6,7 +6,7 @@
     <title>Dimensionamento PACS - Polos Tecnologia</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="/css/style.css" rel="stylesheet">
-	<link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>
     <div class="container">
@@ -17,45 +17,33 @@
 
         <main class="content">
             <section class="input-section">
-                <h2>Dados dos Exames</h2>
+                <h2>Dados da Unidade e Exames</h2>
                 <form id="storageForm">
+                    <div class="form-group">
+                        <label for="unit-name">Nome da Unidade *</label>
+                        <input type="text" id="unit-name" placeholder="Nome da unidade" required>
+                    </div>
+
+                    <h3>Tamanho Médio dos Exames (MB)</h3>
                     <table class="exam-table">
                         <thead>
                             <tr>
                                 <th>Tipo de Exame</th>
-                                <th>Quantidade por Mês</th>
                                 <th>Tamanho Médio (MB)</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Mamografia -->
+                            <!-- Ressonância -->
                             <tr>
-                                <td data-label="Tipo de Exame">Mamografia</td>
-                                <td data-label="Quantidade por Mês">
-                                    <input type="number" id="mamografia-qtd" placeholder="Qtd/mês" min="0">
-                                </td>
+                                <td data-label="Tipo de Exame">Ressonância</td>
                                 <td data-label="Tamanho Médio (MB)">
-                                    <input type="number" id="mamografia-size" placeholder="Tamanho (MB)" min="0" step="0.01">
-                                </td>
-                            </tr>
-
-                            <!-- Hemodinâmica -->
-                            <tr>
-                                <td data-label="Tipo de Exame">Hemodinâmica</td>
-                                <td data-label="Quantidade por Mês">
-                                    <input type="number" id="hemodinamica-qtd" placeholder="Qtd/mês" min="0">
-                                </td>
-                                <td data-label="Tamanho Médio (MB)">
-                                    <input type="number" id="hemodinamica-size" placeholder="Tamanho (MB)" min="0" step="0.01">
+                                    <input type="number" id="ressonancia-size" placeholder="Tamanho (MB)" min="0" step="0.01">
                                 </td>
                             </tr>
 
                             <!-- Tomografia -->
                             <tr>
                                 <td data-label="Tipo de Exame">Tomografia</td>
-                                <td data-label="Quantidade por Mês">
-                                    <input type="number" id="tomografia-qtd" placeholder="Qtd/mês" min="0">
-                                </td>
                                 <td data-label="Tamanho Médio (MB)">
                                     <input type="number" id="tomografia-size" placeholder="Tamanho (MB)" min="0" step="0.01">
                                 </td>
@@ -64,40 +52,39 @@
                             <!-- Raio-X -->
                             <tr>
                                 <td data-label="Tipo de Exame">Raio-X</td>
-                                <td data-label="Quantidade por Mês">
-                                    <input type="number" id="raiox-qtd" placeholder="Qtd/mês" min="0">
-                                </td>
                                 <td data-label="Tamanho Médio (MB)">
                                     <input type="number" id="raiox-size" placeholder="Tamanho (MB)" min="0" step="0.01">
-                                </td>
-                            </tr>
-
-                            <!-- Ressonância -->
-                            <tr>
-                                <td data-label="Tipo de Exame">Ressonância</td>
-                                <td data-label="Quantidade por Mês">
-                                    <input type="number" id="ressonancia-qtd" placeholder="Qtd/mês" min="0">
-                                </td>
-                                <td data-label="Tamanho Médio (MB)">
-                                    <input type="number" id="ressonancia-size" placeholder="Tamanho (MB)" min="0" step="0.01">
                                 </td>
                             </tr>
 
                             <!-- Ultrassom -->
                             <tr>
                                 <td data-label="Tipo de Exame">Ultrassom</td>
-                                <td data-label="Quantidade por Mês">
-                                    <input type="number" id="ultrassom-qtd" placeholder="Qtd/mês" min="0">
-                                </td>
                                 <td data-label="Tamanho Médio (MB)">
                                     <input type="number" id="ultrassom-size" placeholder="Tamanho (MB)" min="0" step="0.01">
+                                </td>
+                            </tr>
+
+                            <!-- Densitometria -->
+                            <tr>
+                                <td data-label="Tipo de Exame">Densitometria</td>
+                                <td data-label="Tamanho Médio (MB)">
+                                    <input type="number" id="densitometria-size" placeholder="Tamanho (MB)" min="0" step="0.01">
+                                </td>
+                            </tr>
+
+                            <!-- Hemodinâmica -->
+                            <tr>
+                                <td data-label="Tipo de Exame">Hemodinâmica</td>
+                                <td data-label="Tamanho Médio (MB)">
+                                    <input type="number" id="hemodinamica-size" placeholder="Tamanho (MB)" min="0" step="0.01">
                                 </td>
                             </tr>
                         </tbody>
                     </table>
 
                     <div class="custom-years">
-                        <label for="custom-years">Período personalizado (anos):</label>
+                        <label for="custom-years">Projeção personalizada (anos):</label>
                         <input type="number" id="custom-years" min="1" placeholder="Digite o número de anos">
                     </div>
 

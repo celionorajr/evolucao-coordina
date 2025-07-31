@@ -6,7 +6,7 @@
     <title>Dimensionamento PACS - Polos Tecnologia</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="/css/style.css" rel="stylesheet">
-	<link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>
     <div class="container">
@@ -19,87 +19,29 @@
             <section class="input-section">
                 <h2>Dados dos Exames</h2>
                 <form id="storageForm">
+
+                    <!-- Novo campo Nome da Unidade -->
+                    <div style="margin-bottom: 15px;">
+                        <label for="unidade">Nome da Unidade:</label>
+                        <input type="text" id="unidade" placeholder="Digite o nome da unidade" required>
+                    </div>
+
                     <table class="exam-table">
                         <thead>
                             <tr>
                                 <th>Tipo de Exame</th>
-                                <th>Quantidade por Mês</th>
-                                <th>Tamanho Médio (MB)</th>
+                                <th>Quantidade por Dia</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Mamografia -->
-                            <tr>
-                                <td data-label="Tipo de Exame">Mamografia</td>
-                                <td data-label="Quantidade por Mês">
-                                    <input type="number" id="mamografia-qtd" placeholder="Qtd/mês" min="0">
-                                </td>
-                                <td data-label="Tamanho Médio (MB)">
-                                    <input type="number" id="mamografia-size" placeholder="Tamanho (MB)" min="0" step="0.01">
-                                </td>
-                            </tr>
-
-                            <!-- Hemodinâmica -->
-                            <tr>
-                                <td data-label="Tipo de Exame">Hemodinâmica</td>
-                                <td data-label="Quantidade por Mês">
-                                    <input type="number" id="hemodinamica-qtd" placeholder="Qtd/mês" min="0">
-                                </td>
-                                <td data-label="Tamanho Médio (MB)">
-                                    <input type="number" id="hemodinamica-size" placeholder="Tamanho (MB)" min="0" step="0.01">
-                                </td>
-                            </tr>
-
-                            <!-- Tomografia -->
-                            <tr>
-                                <td data-label="Tipo de Exame">Tomografia</td>
-                                <td data-label="Quantidade por Mês">
-                                    <input type="number" id="tomografia-qtd" placeholder="Qtd/mês" min="0">
-                                </td>
-                                <td data-label="Tamanho Médio (MB)">
-                                    <input type="number" id="tomografia-size" placeholder="Tamanho (MB)" min="0" step="0.01">
-                                </td>
-                            </tr>
-
-                            <!-- Raio-X -->
-                            <tr>
-                                <td data-label="Tipo de Exame">Raio-X</td>
-                                <td data-label="Quantidade por Mês">
-                                    <input type="number" id="raiox-qtd" placeholder="Qtd/mês" min="0">
-                                </td>
-                                <td data-label="Tamanho Médio (MB)">
-                                    <input type="number" id="raiox-size" placeholder="Tamanho (MB)" min="0" step="0.01">
-                                </td>
-                            </tr>
-
-                            <!-- Ressonância -->
-                            <tr>
-                                <td data-label="Tipo de Exame">Ressonância</td>
-                                <td data-label="Quantidade por Mês">
-                                    <input type="number" id="ressonancia-qtd" placeholder="Qtd/mês" min="0">
-                                </td>
-                                <td data-label="Tamanho Médio (MB)">
-                                    <input type="number" id="ressonancia-size" placeholder="Tamanho (MB)" min="0" step="0.01">
-                                </td>
-                            </tr>
-
-                            <!-- Ultrassom -->
-                            <tr>
-                                <td data-label="Tipo de Exame">Ultrassom</td>
-                                <td data-label="Quantidade por Mês">
-                                    <input type="number" id="ultrassom-qtd" placeholder="Qtd/mês" min="0">
-                                </td>
-                                <td data-label="Tamanho Médio (MB)">
-                                    <input type="number" id="ultrassom-size" placeholder="Tamanho (MB)" min="0" step="0.01">
-                                </td>
-                            </tr>
+                            <tr><td>Ressonância</td><td><input type="number" id="ressonancia-qtd" min="0" value="0"></td></tr>
+                            <tr><td>Tomografia</td><td><input type="number" id="tomografia-qtd" min="0" value="0"></td></tr>
+                            <tr><td>Raio-X</td><td><input type="number" id="raiox-qtd" min="0" value="0"></td></tr>
+                            <tr><td>Ultrassom</td><td><input type="number" id="ultrassom-qtd" min="0" value="0"></td></tr>
+                            <tr><td>Densitometria</td><td><input type="number" id="densitometria-qtd" min="0" value="0"></td></tr>
+                            <tr><td>Hemodinâmica</td><td><input type="number" id="hemodinamica-qtd" min="0" value="0"></td></tr>
                         </tbody>
                     </table>
-
-                    <div class="custom-years">
-                        <label for="custom-years">Período personalizado (anos):</label>
-                        <input type="number" id="custom-years" min="1" placeholder="Digite o número de anos">
-                    </div>
 
                     <div class="form-actions">
                         <button type="button" id="calculate-btn" class="btn btn-primary">Calcular Projeção</button>
@@ -110,55 +52,9 @@
 
             <section class="results-section" id="resultsSection">
                 <h2>Resultados da Projeção</h2>
-                
-                <div class="results-grid">
-                    <div class="result-card">
-                        <h3>Resumo Anual</h3>
-                        <div class="result-value" id="annual-result">-</div>
-                    </div>
-                    
-                    <div class="result-card">
-                        <h3>1 Ano</h3>
-                        <div class="result-value" id="1year-result">-</div>
-                    </div>
-                    
-                    <div class="result-card">
-                        <h3>5 Anos</h3>
-                        <div class="result-value" id="5years-result">-</div>
-                    </div>
-                    
-                    <div class="result-card">
-                        <h3>10 Anos</h3>
-                        <div class="result-value" id="10years-result">-</div>
-                    </div>
-                    
-                    <div class="result-card">
-                        <h3>20 Anos</h3>
-                        <div class="result-value" id="20years-result">-</div>
-                    </div>
-                    
-                    <div class="result-card" id="custom-result-container">
-                        <h3 id="custom-result-title">Período Custom</h3>
-                        <div class="result-value" id="custom-result">-</div>
-                    </div>
-                </div>
-
-                <div class="charts-container">
-                    <div class="chart-wrapper">
-                        <h3>Distribuição por Tipo de Exame</h3>
-                        <canvas id="distributionChart"></canvas>
-                    </div>
-                    
-                    <div class="chart-wrapper">
-                        <h3>Projeção de Crescimento</h3>
-                        <canvas id="growthChart"></canvas>
-                    </div>
-                </div>
-
+                <div id="resultado"></div>
                 <div class="report-actions">
-                    <button id="generate-pdf" class="btn btn-primary">
-                        Gerar Relatório PDF
-                    </button>
+                    <button id="generate-pdf" class="btn btn-primary">Gerar Relatório PDF</button>
                 </div>
             </section>
         </main>
@@ -169,7 +65,6 @@
         </footer>
     </div>
     
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script src="/libs/chart.min.js"></script>
     <script src="/js/script.js"></script>
 </body>

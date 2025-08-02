@@ -1,1 +1,105 @@
 # Sistema de Projeção de Armazenamento PACS - Polos Tecnologia
+
+## 📌 Visão Geral
+O **Sistema de Projeção de Armazenamento PACS** é uma solução web desenvolvida para auxiliar unidades de saúde no dimensionamento preciso de armazenamento para sistemas PACS (Picture Archiving and Communication System). A ferramenta calcula necessidades de armazenamento com base em exames médicos e gera projeções para diferentes períodos.
+
+![Captura de Tela](https://via.placeholder.com/800x400?text=Preview+do+Sistema+PACS) *(Imagem ilustrativa)*
+
+## ✨ Funcionalidades Principais
+- **Cálculo Inteligente**:
+  - Suporte a 6 tipos de exames (Ressonância, Tomografia, Raio-X, Ultrassom, Densitometria, Hemodinâmica)
+  - Médias diárias pré-configuradas para cada modalidade
+- **Projeções Temporais**:
+  - Períodos padrão: 1, 5, 10 e 20 anos
+  - Opção para período personalizado
+- **Visualização de Dados**:
+  - Gráfico de pizza: distribuição por tipo de exame
+  - Gráfico de barras: crescimento do armazenamento
+- **Relatórios**:
+  - Geração de PDF com todos os resultados
+  - Inclusão automática de gráficos
+
+## 🛠 Tecnologias Utilizadas
+| Categoria       | Tecnologias                                                                 |
+|-----------------|----------------------------------------------------------------------------|
+| Frontend        | ![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white) ![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white) ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black) |
+| Bibliotecas     | ![Chart.js](https://img.shields.io/badge/Chart.js-FF6384?logo=chart.js&logoColor=white) ![html2canvas](https://img.shields.io/badge/html2canvas-000000?logo=html5&logoColor=white) |
+| Backend         | ![Node.js](https://img.shields.io/badge/Node.js-339933?logo=node.js&logoColor=white) ![Express](https://img.shields.io/badge/Express-000000?logo=express&logoColor=white) |
+| Ferramentas     | ![Puppeteer](https://img.shields.io/badge/Puppeteer-40B5A4?logo=puppeteer&logoColor=white) ![Git](https://img.shields.io/badge/Git-F05032?logo=git&logoColor=white) |
+
+## 🚀 Como Executar
+
+### Pré-requisitos
+- Node.js v20+
+- NPM v9+
+- Git (para clonar o repositório)
+
+### Instalação Passo a Passo
+```bash
+# 1. Clone o repositório
+git clone https://github.com/celionorajr/evolucao-coordina.git
+
+# 2. Acesse o diretório
+cd evolucao-coordina
+
+# 3. Instale as dependências
+npm install
+
+# 4. Inicie o servidor (modo desenvolvimento)
+npm run dev
+
+# Ou para produção
+npm start
+```
+
+O sistema estará disponível em: [http://localhost:3000](http://localhost:3000)
+
+## 📊 Estrutura do Projeto
+```bash
+evolucao-coordina/
+├── public/               # Arquivos estáticos
+│   ├── css/              # Estilos CSS
+│   ├── js/               # Lógica principal
+│   └── logos/            # Assets visuais
+├── server/               # Lógica do servidor
+├── package.json          # Configuração do projeto
+├── README.md             # Documentação
+└── .env.example          # Modelo de variáveis de ambiente
+```
+
+## 📝 Como Utilizar
+1. **Preencha os Dados**:
+   - Informe o nome da unidade
+   - Insira os tamanhos médios para cada tipo de exame
+
+2. **Calcule a Projeção**:
+   - Clique em "Calcular Projeção"
+   - Visualize os resultados em GB/TB
+
+3. **Personalize**:
+   - Adicione um período personalizado (em anos)
+   - Ajuste os valores conforme necessário
+
+4. **Exporte Resultados**:
+   - Gere um relatório em PDF com os gráficos
+
+## 🤝 Contribuição
+Contribuições são bem-vindas! Siga estes passos:
+1. Faça um fork do projeto
+2. Crie uma branch (`git checkout -b feature/nova-funcionalidade`)
+3. Commit suas mudanças (`git commit -m 'Adiciona nova funcionalidade'`)
+4. Push para a branch (`git push origin feature/nova-funcionalidade`)
+5. Abra um Pull Request
+
+## 📜 Licença
+Este projeto é propriedade intelectual da **Polos Tecnologia** e está sob licença interna. Para mais informações, entre em contato.
+
+## ✉️ Contato
+**Desenvolvedor**: Célio Nora Junior  
+**Cargo**: Analista de Suporte Técnico  
+**Empresa**: Polos Tecnologia  
+**Email**: [seu-email@polos.com.br](mailto:seu-email@polos.com.br)
+
+---
+
+⭐ **Dica**: Para melhores resultados, utilize os valores médios reais dos equipamentos da unidade. Valores padrão são fornecidos como referência inicial.

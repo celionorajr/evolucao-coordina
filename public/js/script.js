@@ -12,17 +12,6 @@ function loadChartJS() {
   });
 }
 
-function validatePositiveNumber(value, fieldName) {
-  const sanitizedValue = value.replace(',', '.');
-  const num = parseFloat(sanitizedValue);
-  if (isNaN(num)) return 0;
-  if (num < 0) {
-    alert(`Por favor, insira um valor positivo para ${fieldName}`);
-    throw new Error(`Valor negativo não permitido em ${fieldName}`);
-  }
-  return num;
-}
-
 function adjustChartsForMobile() {
   if (window.innerWidth <= 768) {
     if (distributionChart) {
@@ -68,12 +57,15 @@ document.addEventListener('DOMContentLoaded', async function () {
     generatePdfBtn.addEventListener('click', handlePdfGeneration);
     window.addEventListener('resize', adjustChartsForMobile);
 
-    function getExamData(examName) {
+    // Atualizado para aceitar campos vazios e validar valores negativos e inválidos
+    function getExamData(examName, isRequired = false) {
       const el = document.getElementById(`${examName}-size`);
+      if (!el) return { size: 0 };
       const value = el.value.trim().replace(',', '.');
+      if (value === '') return { size: 0 };
       const num = parseFloat(value);
       if (isNaN(num) || num < 0) {
-        alert(`Por favor, insira um valor válido para ${examName}`);
+        if (isRequired) alert(`Por favor, insira um valor válido e positivo para ${examName}`);
         throw new Error(`Valor inválido em ${examName}`);
       }
       return { size: num };
@@ -81,7 +73,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     function calculateProjection() {
       try {
-        document.activeElement.blur(); // Força o input a perder o foco
+        // Corrige bug de rolagem infinita no mobile
+        document.activeElement.blur();
 
         const unitName = document.getElementById('unit-name').value.trim();
         if (!unitName) {
@@ -89,20 +82,32 @@ document.addEventListener('DOMContentLoaded', async function () {
           return;
         }
 
+        // Busca exames, campos não obrigatórios individualmente
         const examData = {
-          ressonancia: getExamData('ressonancia'),
-          tomografia: getExamData('tomografia'),
-          raiox: getExamData('raiox'),
-          ultrassom: getExamData('ultrassom'),
-          densitometria: getExamData('densitometria'),
-          hemodinamica: getExamData('hemodinamica')
+          ressonancia: getExamData('ressonancia', false),
+          tomografia: getExamData('tomografia', false),
+          raiox: getExamData('raiox', false),
+          ultrassom: getExamData('ultrassom', false),
+          densitometria: getExamData('densitometria', false),
+          hemodinamica: getExamData('hemodinamica', false)
         };
 
-        const customYearsValue = document.getElementById('custom-years').value.trim();
-        const customYears = parseInt(customYearsValue) || 0;
-        if (customYears < 0) {
-          alert('Por favor, insira um número de anos positivo');
+        // Verifica se pelo menos um exame foi preenchido
+        const algumPreenchido = Object.values(examData).some(d => d.size > 0);
+        if (!algumPreenchido) {
+          alert('Por favor, preencha pelo menos um tipo de exame.');
           return;
+        }
+
+        // Projeção personalizada em anos - opcional, aceita vazio ou zero
+        const customYearsValue = document.getElementById('custom-years').value.trim();
+        let customYears = 0;
+        if (customYearsValue !== '') {
+          customYears = parseInt(customYearsValue);
+          if (isNaN(customYears) || customYears < 0) {
+            alert('Por favor, insira um número de anos positivo ou deixe em branco para projeção personalizada');
+            return;
+          }
         }
 
         let totalMonthlyMB = 0;
@@ -121,11 +126,6 @@ document.addEventListener('DOMContentLoaded', async function () {
           };
 
           totalMonthlyMB += monthlyMB;
-        }
-
-        if (totalMonthlyMB === 0) {
-          alert('Por favor, insira dados para pelo menos um tipo de exame');
-          return;
         }
 
         const annualGB = (totalMonthlyMB * 12) / 1024;
@@ -340,8 +340,9 @@ document.addEventListener('DOMContentLoaded', async function () {
       const examTypes = ['ressonancia', 'tomografia', 'raiox', 'ultrassom', 'densitometria', 'hemodinamica'];
 
       examTypes.forEach(exam => {
+        const val = document.getElementById(`${exam}-size`).value.trim().replace(',', '.');
         examData[exam] = {
-          size: parseFloat(document.getElementById(`${exam}-size`).value.replace(',', '.')) || 0
+          size: parseFloat(val) || 0
         };
       });
 

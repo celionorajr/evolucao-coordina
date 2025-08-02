@@ -3,7 +3,14 @@
 ## 📌 Visão Geral
 O **Sistema de Projeção de Armazenamento PACS** é uma solução web desenvolvida para auxiliar unidades de saúde no dimensionamento preciso de armazenamento para sistemas PACS (Picture Archiving and Communication System). A ferramenta calcula necessidades de armazenamento com base em exames médicos e gera projeções para diferentes períodos.
 
-![Captura de Tela](https://via.placeholder.com/800x400?text=Preview+do+Sistema+PACS) *(Imagem ilustrativa)*
+![Tela Principal](https://i.postimg.cc/bZCL7k4Q/Captura-de-tela-2025-08-02-124101.png)
+*Interface principal do sistema com formulário de entrada de dados*
+
+![Resultados](https://i.postimg.cc/3yz1R78N/Captura-de-tela-2025-08-02-124134.png)
+*Seção de resultados com projeções de armazenamento*
+
+![Gráficos](https://i.postimg.cc/mcPVBhGK/Captura-de-tela-2025-08-02-124153.png)
+*Visualização dos gráficos de distribuição e crescimento*
 
 ## ✨ Funcionalidades Principais
 - **Cálculo Inteligente**:
@@ -96,9 +103,8 @@ Este projeto é propriedade intelectual da **Polos Tecnologia** e está sob lice
 
 ## ✉️ Contato
 **Desenvolvedor**: Célio Nora Junior  
-**Cargo**: Analista de Suporte Técnico  
-**Empresa**: Polos Tecnologia  
-**Email**: [seu-email@polos.com.br](mailto:seu-email@polos.com.br)
+**Email**: [cnoraj@gmail.com](mailto:cnoraj@gmail.com)  
+**Repositório**: [github.com/celionorajr/evolucao-coordina](https://github.com/celionorajr/evolucao-coordina)
 
 ---
 

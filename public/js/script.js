@@ -30,27 +30,57 @@ function adjustChartsForMobile() {
 
 let distributionChart = null;
 let growthChart = null;
-
-// Flag para evitar scroll repetido
 let scrolling = false;
 
-// Função para scroll suave manual
+// Função para encontrar o container rolável mais próximo
+function findScrollableParent(element) {
+  let parent = element.parentElement;
+  while (parent) {
+    const style = getComputedStyle(parent);
+    if (style.overflowY === 'auto' || style.overflowY === 'scroll' || style.overflow === 'auto' || style.overflow === 'scroll') {
+      return parent;
+    }
+    parent = parent.parentElement;
+  }
+  return document.documentElement; // Retorna o elemento raiz se nenhum container for encontrado
+}
+
+// Função aprimorada para rolagem suave
 function smoothScrollToElement(element) {
+  if (!element) return;
+
   const isMobile = window.innerWidth <= 768;
-  const offset = 20; // Pequeno offset para não colar no topo
+  const headerOffset = 80; // Ajuste conforme a altura do seu cabeçalho
+  const scrollableParent = findScrollableParent(element);
+  const isBodyScroll = scrollableParent === document.documentElement;
   
-  if (isMobile) {
-    // Solução simplificada para mobile - scroll instantâneo
-    window.scrollTo({
-      top: element.offsetTop - offset,
-      behavior: 'auto'
-    });
-  } else {
-    // Para desktop, mantemos o scroll suave
-    window.scrollTo({
-      top: element.offsetTop - offset,
-      behavior: 'smooth'
-    });
+  // Calcula a posição considerando o container pai
+  const elementRect = element.getBoundingClientRect();
+  const parentRect = scrollableParent.getBoundingClientRect();
+  const scrollPosition = isBodyScroll 
+    ? window.pageYOffset + elementRect.top - headerOffset
+    : scrollableParent.scrollTop + elementRect.top - parentRect.top - headerOffset;
+
+  // Configuração do scroll
+  const scrollOptions = {
+    top: scrollPosition,
+    behavior: isMobile ? 'auto' : 'smooth'
+  };
+
+  // Executa o scroll no elemento apropriado
+  try {
+    if (isBodyScroll) {
+      window.scrollTo(scrollOptions);
+    } else {
+      scrollableParent.scrollTo(scrollOptions);
+    }
+  } catch (e) {
+    // Fallback para navegadores mais antigos
+    if (isBodyScroll) {
+      window.scrollTo(0, scrollPosition);
+    } else {
+      scrollableParent.scrollTop = scrollPosition;
+    }
   }
 }
 
@@ -159,15 +189,17 @@ document.addEventListener('DOMContentLoaded', async function () {
         adjustChartsForMobile();
 
         resultsSection.style.display = 'block';
-        smoothScrollToElement(resultsSection);
+        
+        // Aguarda a renderização dos gráficos antes de rolar
+        setTimeout(() => {
+          smoothScrollToElement(resultsSection);
+          scrolling = false;
+        }, 300);
 
       } catch (error) {
         console.error('Erro no cálculo:', error);
         alert(error.message || 'Ocorreu um erro ao calcular. Verifique os dados inseridos.');
-      } finally {
-        setTimeout(() => {
-          scrolling = false;
-        }, 1000);
+        scrolling = false;
       }
     }
 

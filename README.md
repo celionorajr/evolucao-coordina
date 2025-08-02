@@ -89,25 +89,8 @@ evolucao-coordina/
 
 4. **Exporte Resultados**:
    - Gere um relatório em PDF com os gráficos
-
-## 🤝 Contribuição
-Contribuições são bem-vindas! Siga estes passos:
-1. Faça um fork do projeto
-2. Crie uma branch (`git checkout -b feature/nova-funcionalidade`)
-3. Commit suas mudanças (`git commit -m 'Adiciona nova funcionalidade'`)
-4. Push para a branch (`git push origin feature/nova-funcionalidade`)
-5. Abra um Pull Request
-
-## 📜 Licença
-Este projeto é propriedade intelectual da **Polos Tecnologia** e está sob licença interna. Para mais informações, entre em contato.
-
-## ✉️ Contato
-**Desenvolvedor**: Célio Nora Junior  
-**Email**: [cnoraj@gmail.com](mailto:cnoraj@gmail.com)  
-**Repositório**: [github.com/celionorajr/evolucao-coordina](https://github.com/celionorajr/evolucao-coordina)
-Aqui está a seção de testes que você pode adicionar ao final do seu README.md:
-
-## 🧪 Testes e Ambiente
+   
+   ## 🧪 Testes e Ambiente
 
 ### Ambiente de Teste Online
 Você pode testar a aplicação diretamente em nosso ambiente:  
@@ -143,6 +126,22 @@ Encontrou algum problema? Por favor:
    - Screenshots quando aplicável
    - Configuração do seu ambiente
 
+## 🤝 Contribuição
+Contribuições são bem-vindas! Siga estes passos:
+1. Faça um fork do projeto
+2. Crie uma branch (`git checkout -b feature/nova-funcionalidade`)
+3. Commit suas mudanças (`git commit -m 'Adiciona nova funcionalidade'`)
+4. Push para a branch (`git push origin feature/nova-funcionalidade`)
+5. Abra um Pull Request
+
+## 📜 Licença
+Este projeto é propriedade intelectual da **Polos Tecnologia** e está sob licença interna. Para mais informações, entre em contato.
+
+## ✉️ Contato
+**Desenvolvedor**: Célio Nora Junior  
+**Email**: [cnoraj@gmail.com](mailto:cnoraj@gmail.com)  
+**Repositório**: [github.com/celionorajr/evolucao-coordina](https://github.com/celionorajr/evolucao-coordina)
+Aqui está a seção de testes que você pode adicionar ao final do seu README.md:
 
 ---
 

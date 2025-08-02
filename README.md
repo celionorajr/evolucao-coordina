@@ -6,7 +6,7 @@ O **Sistema de Projeção de Armazenamento PACS** é uma solução web desenvolv
 ![Tela Principal](https://i.postimg.cc/bZCL7k4Q/Captura-de-tela-2025-08-02-124101.png)
 *Interface principal do sistema com formulário de entrada de dados*
 
-![Resultados](https://i.postimg.cc/3yz1R78N/Captura-de-tela-2025-08-02-124134.png)
+![Resultados](https://postimg.cc/3yz1R78Ns)
 *Seção de resultados com projeções de armazenamento*
 
 ![Gráficos](https://i.postimg.cc/mcPVBhGK/Captura-de-tela-2025-08-02-124153.png)

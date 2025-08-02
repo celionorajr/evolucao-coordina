@@ -31,6 +31,9 @@ function adjustChartsForMobile() {
 let distributionChart = null;
 let growthChart = null;
 
+// Flag para evitar scroll repetido
+let scrolling = false;
+
 document.addEventListener('DOMContentLoaded', async function () {
   try {
     await loadChartJS();
@@ -57,7 +60,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     generatePdfBtn.addEventListener('click', handlePdfGeneration);
     window.addEventListener('resize', adjustChartsForMobile);
 
-    // Atualizado para aceitar campos vazios e validar valores negativos e inválidos
     function getExamData(examName, isRequired = false) {
       const el = document.getElementById(`${examName}-size`);
       if (!el) return { size: 0 };
@@ -72,17 +74,19 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     function calculateProjection() {
+      if (scrolling) return; // evita múltiplos scrolls simultâneos
+      scrolling = true;
+
       try {
-        // Corrige bug de rolagem infinita no mobile
         document.activeElement.blur();
 
         const unitName = document.getElementById('unit-name').value.trim();
         if (!unitName) {
           alert('Por favor, informe o nome da unidade');
+          scrolling = false;
           return;
         }
 
-        // Busca exames, campos não obrigatórios individualmente
         const examData = {
           ressonancia: getExamData('ressonancia', false),
           tomografia: getExamData('tomografia', false),
@@ -96,16 +100,17 @@ document.addEventListener('DOMContentLoaded', async function () {
         const algumPreenchido = Object.values(examData).some(d => d.size > 0);
         if (!algumPreenchido) {
           alert('Por favor, preencha pelo menos um tipo de exame.');
+          scrolling = false;
           return;
         }
 
-        // Projeção personalizada em anos - opcional, aceita vazio ou zero
         const customYearsValue = document.getElementById('custom-years').value.trim();
         let customYears = 0;
         if (customYearsValue !== '') {
           customYears = parseInt(customYearsValue);
           if (isNaN(customYears) || customYears < 0) {
             alert('Por favor, insira um número de anos positivo ou deixe em branco para projeção personalizada');
+            scrolling = false;
             return;
           }
         }
@@ -140,6 +145,11 @@ document.addEventListener('DOMContentLoaded', async function () {
       } catch (error) {
         console.error('Erro no cálculo:', error);
         alert(error.message || 'Ocorreu um erro ao calcular. Verifique os dados inseridos.');
+      } finally {
+        // Libera o scroll após 600ms (duração aproximada do scroll suave)
+        setTimeout(() => {
+          scrolling = false;
+        }, 600);
       }
     }
 

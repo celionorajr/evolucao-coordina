@@ -34,6 +34,26 @@ let growthChart = null;
 // Flag para evitar scroll repetido
 let scrolling = false;
 
+// Função para scroll suave manual
+function smoothScrollToElement(element) {
+  const isMobile = window.innerWidth <= 768;
+  const offset = 20; // Pequeno offset para não colar no topo
+  
+  if (isMobile) {
+    // Solução simplificada para mobile - scroll instantâneo
+    window.scrollTo({
+      top: element.offsetTop - offset,
+      behavior: 'auto'
+    });
+  } else {
+    // Para desktop, mantemos o scroll suave
+    window.scrollTo({
+      top: element.offsetTop - offset,
+      behavior: 'smooth'
+    });
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async function () {
   try {
     await loadChartJS();
@@ -74,7 +94,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     function calculateProjection() {
-      if (scrolling) return; // evita múltiplos scrolls simultâneos
+      if (scrolling) return;
       scrolling = true;
 
       try {
@@ -96,7 +116,6 @@ document.addEventListener('DOMContentLoaded', async function () {
           hemodinamica: getExamData('hemodinamica', false)
         };
 
-        // Verifica se pelo menos um exame foi preenchido
         const algumPreenchido = Object.values(examData).some(d => d.size > 0);
         if (!algumPreenchido) {
           alert('Por favor, preencha pelo menos um tipo de exame.');
@@ -140,16 +159,15 @@ document.addEventListener('DOMContentLoaded', async function () {
         adjustChartsForMobile();
 
         resultsSection.style.display = 'block';
-        resultsSection.scrollIntoView({ behavior: 'smooth' });
+        smoothScrollToElement(resultsSection);
 
       } catch (error) {
         console.error('Erro no cálculo:', error);
         alert(error.message || 'Ocorreu um erro ao calcular. Verifique os dados inseridos.');
       } finally {
-        // Libera o scroll após 600ms (duração aproximada do scroll suave)
         setTimeout(() => {
           scrolling = false;
-        }, 600);
+        }, 1000);
       }
     }
 

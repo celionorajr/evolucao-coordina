@@ -105,6 +105,44 @@ Este projeto é propriedade intelectual da **Polos Tecnologia** e está sob lice
 **Desenvolvedor**: Célio Nora Junior  
 **Email**: [cnoraj@gmail.com](mailto:cnoraj@gmail.com)  
 **Repositório**: [github.com/celionorajr/evolucao-coordina](https://github.com/celionorajr/evolucao-coordina)
+Aqui está a seção de testes que você pode adicionar ao final do seu README.md:
+
+## 🧪 Testes e Ambiente
+
+### Ambiente de Teste Online
+Você pode testar a aplicação diretamente em nosso ambiente:  
+🔗 [https://evolucao.coordina.com.br/](https://evolucao.coordina.com.br/)
+
+### Dados de Teste Recomendados
+Para experimentar o sistema, sugerimos os seguintes valores de teste:
+
+| Tipo de Exame      | Tamanho Médio (MB) |
+|--------------------|-------------------:|
+| Ressonância        | 120               |
+| Tomografia         | 80                |
+| Raio-X             | 15                |
+| Ultrassom          | 25                |
+| Densitometria      | 10                |
+| Hemodinâmica       | 150               |
+
+### Como Realizar Testes Locais
+1. Execute a aplicação localmente seguindo as instruções de instalação
+2. Utilize os dados de teste acima
+3. Verifique:
+   - Cálculos de projeção para diferentes períodos
+   - Geração correta dos gráficos
+   - Funcionamento da exportação para PDF
+
+### Relatar Problemas
+Encontrou algum problema? Por favor:
+1. Verifique se reproduz o erro no ambiente de demonstração
+2. Capture prints da tela com o erro
+3. Abra uma issue no [GitHub](https://github.com/celionorajr/evolucao-coordina/issues) com:
+   - Descrição detalhada do problema
+   - Passos para reproduzir
+   - Screenshots quando aplicável
+   - Configuração do seu ambiente
+
 
 ---
 

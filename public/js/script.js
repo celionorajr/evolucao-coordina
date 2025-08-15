@@ -92,12 +92,13 @@ document.addEventListener('DOMContentLoaded', async function () {
     document.getElementById('current-year').textContent = new Date().getFullYear();
 
     const dailyAverages = {
-      ressonancia: 20,
-      tomografia: 75,
-      raiox: 70,
+      ressonancia: 10,
+      tomografia: 65,
+      raiox: 60,
       ultrassom: 60,
-      densitometria: 20,
-      hemodinamica: 20
+      densitometria: 50,
+      hemodinamica: 10,
+	  mamografia: 60
     };
 
     const calculateBtn = document.getElementById('calculate-btn');
@@ -138,13 +139,14 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
 
         const examData = {
-          ressonancia: getExamData('ressonancia', false),
-          tomografia: getExamData('tomografia', false),
-          raiox: getExamData('raiox', false),
-          ultrassom: getExamData('ultrassom', false),
-          densitometria: getExamData('densitometria', false),
-          hemodinamica: getExamData('hemodinamica', false)
-        };
+			ressonancia: getExamData('ressonancia', false),
+			tomografia: getExamData('tomografia', false),
+			raiox: getExamData('raiox', false),
+			ultrassom: getExamData('ultrassom', false),
+			densitometria: getExamData('densitometria', false),
+			hemodinamica: getExamData('hemodinamica', false),
+			mamografia: getExamData('mamografia', false)
+		};
 
         const algumPreenchido = Object.values(examData).some(d => d.size > 0);
         if (!algumPreenchido) {
@@ -397,7 +399,7 @@ document.addEventListener('DOMContentLoaded', async function () {
       }
 
       const examData = {};
-      const examTypes = ['ressonancia', 'tomografia', 'raiox', 'ultrassom', 'densitometria', 'hemodinamica'];
+      const examTypes = ['ressonancia', 'tomografia', 'raiox', 'ultrassom', 'densitometria', 'hemodinamica', 'mamografia'];
 
       examTypes.forEach(exam => {
         const val = document.getElementById(`${exam}-size`).value.trim().replace(',', '.');

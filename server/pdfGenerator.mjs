@@ -76,7 +76,8 @@ function buildPdfHtml(unitName, examData, results, date, chartImages, logoBase64
         raiox: 60,
         ultrassom: 50,
         densitometria: 10,
-        hemodinamica: 10
+        hemodinamica: 10,
+		mamografia: 60
     };
 
     let totalMonthlyGB = 0;

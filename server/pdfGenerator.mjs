@@ -72,12 +72,12 @@ export async function generatePdf(unitName, examData, results, date, chartImages
 function buildPdfHtml(unitName, examData, results, date, chartImages, logoBase64) {
     const dailyAverages = {
         ressonancia: 10,
-        tomografia: 65,
-        raiox: 60,
-        ultrassom: 50,
-        densitometria: 10,
-        hemodinamica: 10,
-		mamografia: 60
+      tomografia: 42,
+      raiox: 39,
+      ultrassom: 54,
+      densitometria: 4,
+      hemodinamica: 10,
+	  mamografia: 60
     };
 
     let totalMonthlyGB = 0;

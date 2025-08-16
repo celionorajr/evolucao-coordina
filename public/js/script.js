@@ -93,10 +93,10 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     const dailyAverages = {
       ressonancia: 10,
-      tomografia: 65,
-      raiox: 60,
-      ultrassom: 60,
-      densitometria: 50,
+      tomografia: 42,
+      raiox: 39,
+      ultrassom: 54,
+      densitometria: 4,
       hemodinamica: 10,
 	  mamografia: 60
     };

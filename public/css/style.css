@@ -438,4 +438,138 @@ h3 {
   .chart-wrapper h3 {
     font-size: 1.1rem;
   }
+
+  /* Adicionar ao final do arquivo style.css existente */
+
+.margin-section {
+    background-color: #f5fbfb;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+    border-left: 4px solid #24cec5;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-color);
+}
+
+.margin-fields {
+    display: none;
+    margin-top: 15px;
+    padding: 15px;
+    background-color: white;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.margin-fields.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.margin-fields .form-group {
+    margin-bottom: 15px;
+}
+
+.margin-fields label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: var(--primary-color);
+    font-size: 0.95rem;
+}
+
+.margin-fields input[type="number"],
+.margin-fields select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+}
+
+.margin-fields input[type="number"]:focus,
+.margin-fields select:focus {
+    border-color: var(--secondary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(36, 206, 197, 0.2);
+}
+
+.margin-fields small {
+    color: #666;
+    font-size: 0.85rem;
+    display: block;
+    margin-top: 5px;
+}
+
+.result-card small {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    display: none;
+    margin-top: 5px;
+    transition: all 0.3s;
+}
+
+.result-card:hover small {
+    opacity: 1;
+}
+
+/* Ajustes para a tabela com 3 colunas */
+.exam-table th:nth-child(3),
+.exam-table td:nth-child(3) {
+    text-align: center;
+}
+
+.exam-table th:nth-child(2),
+.exam-table th:nth-child(3),
+.exam-table td:nth-child(2),
+.exam-table td:nth-child(3) {
+    width: 30%;
+}
+
+@media (max-width: 768px) {
+    .exam-table td:nth-child(2):before {
+        content: "Tamanho (MB): ";
+    }
+    
+    .exam-table td:nth-child(3):before {
+        content: "Qtd/dia: ";
+    }
+    
+    .margin-fields {
+        padding: 12px;
+    }
+    
+    .margin-fields input[type="number"],
+    .margin-fields select {
+        padding: 8px 10px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .margin-section {
+        padding: 15px;
+    }
+    
+    .checkbox-group label {
+        font-size: 0.9rem;
+    }
+}
 }

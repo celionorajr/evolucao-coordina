@@ -7,6 +7,46 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="/css/style.css" rel="stylesheet">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <style>
+        .margin-section {
+            background-color: #f5fbfb;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #24cec5;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .margin-fields {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+        
+        .margin-fields.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -24,12 +64,13 @@
                         <input type="text" id="unit-name" placeholder="Nome da unidade" required>
                     </div>
 
-                    <h3>Tamanho Médio dos Exames (MB)</h3>
+                    <h3>Configuração dos Exames</h3>
                     <table class="exam-table">
                         <thead>
                             <tr>
                                 <th>Tipo de Exame</th>
                                 <th>Tamanho Médio (MB)</th>
+                                <th>Quantidade Diária</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -39,6 +80,9 @@
                                 <td data-label="Tamanho Médio (MB)">
                                     <input type="number" id="ressonancia-size" placeholder="Tamanho (MB)" min="0" step="0.01">
                                 </td>
+                                <td data-label="Quantidade Diária">
+                                    <input type="number" id="ressonancia-qtd" placeholder="Qtd/dia" min="0" step="1">
+                                </td>
                             </tr>
 
                             <!-- Tomografia -->
@@ -46,6 +90,9 @@
                                 <td data-label="Tipo de Exame">Tomografia</td>
                                 <td data-label="Tamanho Médio (MB)">
                                     <input type="number" id="tomografia-size" placeholder="Tamanho (MB)" min="0" step="0.01">
+                                </td>
+                                <td data-label="Quantidade Diária">
+                                    <input type="number" id="tomografia-qtd" placeholder="Qtd/dia" min="0" step="1">
                                 </td>
                             </tr>
 
@@ -55,6 +102,9 @@
                                 <td data-label="Tamanho Médio (MB)">
                                     <input type="number" id="raiox-size" placeholder="Tamanho (MB)" min="0" step="0.01">
                                 </td>
+                                <td data-label="Quantidade Diária">
+                                    <input type="number" id="raiox-qtd" placeholder="Qtd/dia" min="0" step="1">
+                                </td>
                             </tr>
 
                             <!-- Ultrassom -->
@@ -62,6 +112,9 @@
                                 <td data-label="Tipo de Exame">Ultrassom</td>
                                 <td data-label="Tamanho Médio (MB)">
                                     <input type="number" id="ultrassom-size" placeholder="Tamanho (MB)" min="0" step="0.01">
+                                </td>
+                                <td data-label="Quantidade Diária">
+                                    <input type="number" id="ultrassom-qtd" placeholder="Qtd/dia" min="0" step="1">
                                 </td>
                             </tr>
 
@@ -71,6 +124,9 @@
                                 <td data-label="Tamanho Médio (MB)">
                                     <input type="number" id="densitometria-size" placeholder="Tamanho (MB)" min="0" step="0.01">
                                 </td>
+                                <td data-label="Quantidade Diária">
+                                    <input type="number" id="densitometria-qtd" placeholder="Qtd/dia" min="0" step="1">
+                                </td>
                             </tr>
 
                             <!-- Hemodinâmica -->
@@ -79,25 +135,57 @@
                                 <td data-label="Tamanho Médio (MB)">
                                     <input type="number" id="hemodinamica-size" placeholder="Tamanho (MB)" min="0" step="0.01">
                                 </td>
+                                <td data-label="Quantidade Diária">
+                                    <input type="number" id="hemodinamica-qtd" placeholder="Qtd/dia" min="0" step="1">
+                                </td>
                             </tr>
-							<!-- Mamografia -->
-							<tr>
-								<td data-label="Tipo de Exame">Mamografia</td>
-								<td data-label="Tamanho Médio (MB)">
-									<input type="number" id="mamografia-size" placeholder="Tamanho (MB)" min="0" step="0.01">
-								</td>
-							</tr>
+
+                            <!-- Mamografia -->
+                            <tr>
+                                <td data-label="Tipo de Exame">Mamografia</td>
+                                <td data-label="Tamanho Médio (MB)">
+                                    <input type="number" id="mamografia-size" placeholder="Tamanho (MB)" min="0" step="0.01">
+                                </td>
+                                <td data-label="Quantidade Diária">
+                                    <input type="number" id="mamografia-qtd" placeholder="Qtd/dia" min="0" step="1">
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
 
+                    <div class="margin-section">
+                        <h3>Margem de Segurança</h3>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="apply-margin">
+                            <label for="apply-margin">Aplicar margem de segurança?</label>
+                        </div>
+                        
+                        <div class="margin-fields" id="marginFields">
+                            <div class="form-group">
+                                <label for="margin-percentage">Margem de segurança (%)</label>
+                                <input type="number" id="margin-percentage" min="0" max="100" step="0.1" 
+                                       placeholder="Ex: 20 para 20%" value="20">
+                                <small style="color: #666;">Valor entre 0% e 100%</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="margin-type">Tipo de aplicação da margem</label>
+                                <select id="margin-type" style="width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid #ddd;">
+                                    <option value="fixed">Margem fixa (aplica a todos os períodos)</option>
+                                    <option value="progressive">Margem progressiva por ano</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="custom-years">
                         <label for="custom-years">Projeção personalizada (anos):</label>
-                        <input type="number" id="custom-years" min="1" placeholder="Digite o número de anos">
+                        <input type="number" id="custom-years" min="1" max="50" placeholder="Digite o número de anos">
                     </div>
 
                     <div class="form-actions">
                         <button type="button" id="calculate-btn" class="btn btn-primary">Calcular Projeção</button>
-                        <button type="reset" id="reset-btn" class="btn btn-secondary">Limpar Campos</button>
+                        <button type="button" id="reset-btn" class="btn btn-secondary">Limpar Campos</button>
                     </div>
                 </form>
             </section>
@@ -109,37 +197,43 @@
                     <div class="result-card">
                         <h3>Resumo Anual</h3>
                         <div class="result-value" id="annual-result">-</div>
+                        <small id="annual-margin-info" style="font-size: 0.8rem; opacity: 0.8; display: none;"></small>
                     </div>
                     
                     <div class="result-card">
                         <h3>1 Ano</h3>
                         <div class="result-value" id="1year-result">-</div>
+                        <small id="1year-margin-info" style="font-size: 0.8rem; opacity: 0.8; display: none;"></small>
                     </div>
                     
                     <div class="result-card">
                         <h3>5 Anos</h3>
                         <div class="result-value" id="5years-result">-</div>
+                        <small id="5years-margin-info" style="font-size: 0.8rem; opacity: 0.8; display: none;"></small>
                     </div>
                     
                     <div class="result-card">
                         <h3>10 Anos</h3>
                         <div class="result-value" id="10years-result">-</div>
+                        <small id="10years-margin-info" style="font-size: 0.8rem; opacity: 0.8; display: none;"></small>
                     </div>
                     
                     <div class="result-card">
                         <h3>20 Anos</h3>
                         <div class="result-value" id="20years-result">-</div>
+                        <small id="20years-margin-info" style="font-size: 0.8rem; opacity: 0.8; display: none;"></small>
                     </div>
                     
                     <div class="result-card" id="custom-result-container">
                         <h3 id="custom-result-title">Período Custom</h3>
                         <div class="result-value" id="custom-result">-</div>
+                        <small id="custom-margin-info" style="font-size: 0.8rem; opacity: 0.8; display: none;"></small>
                     </div>
                 </div>
 
                 <div class="charts-container">
                     <div class="chart-wrapper">
-                        <h3>Distribuição por Tipo de Exame</h3>
+                        <h3>Distribuição por Tipo de Exame (Mensal)</h3>
                         <canvas id="distributionChart"></canvas>
                     </div>
                     
@@ -166,5 +260,16 @@
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script src="/libs/chart.min.js"></script>
     <script src="/js/script.js"></script>
+    <script>
+        // Controle da exibição da margem
+        document.getElementById('apply-margin').addEventListener('change', function() {
+            const marginFields = document.getElementById('marginFields');
+            if (this.checked) {
+                marginFields.classList.add('active');
+            } else {
+                marginFields.classList.remove('active');
+            }
+        });
+    </script>
 </body>
 </html>

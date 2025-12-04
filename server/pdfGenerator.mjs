@@ -6,6 +6,21 @@ import fs from 'fs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Tabela de nomes amigáveis para PDF
+const examFriendlyNames = {
+  ressonancia: 'Ressonância Magnética',
+  tomografia: 'Tomografia Computadorizada',
+  raiox: 'Raio-X Digital',
+  ultrassom: 'Ultrassom',
+  densitometria: 'Densitometria Óssea',
+  hemodinamica: 'Hemodinâmica',
+  mamografia: 'Mamografia Digital',
+  ecocardio: 'Ecocardiograma',
+  endoscopia: 'Endoscopia',
+  colonoscopia: 'Colonoscopia',
+  broncoscopia: 'Broncoscopia'
+};
+
 export async function generatePdf(unitName, examData, results, date, chartImages = {}, calculations = {}) {
     let browser;
     
@@ -75,9 +90,9 @@ function buildPdfHtml(unitName, examData, results, date, chartImages, logoBase64
     const examDetails = [];
 
     // Calcular detalhes dos exames
-    for (const [exam, data] of Object.entries(examData)) {
-        if (data.size > 0 && data.quantity > 0) {
-            const dailyMB = data.size * data.quantity;
+    for (const [examId, data] of Object.entries(examData)) {
+        if (data.size > 0 && data.dailyQuantity > 0) {
+            const dailyMB = data.size * data.dailyQuantity;
             const monthlyMB = dailyMB * 30;
             const monthlyGB = monthlyMB / 1024;
             const annualGB = (dailyMB * 365) / 1024;
@@ -86,12 +101,14 @@ function buildPdfHtml(unitName, examData, results, date, chartImages, logoBase64
             totalAnnualGB += annualGB;
 
             examDetails.push({
-                name: exam.charAt(0).toUpperCase() + exam.slice(1),
+                name: data.displayName,
                 size: data.size.toFixed(2),
-                quantity: data.quantity,
+                monthlyGoal: data.monthlyGoal || Math.round(data.dailyQuantity * 30),
+                dailyQuantity: data.dailyQuantity.toFixed(1),
                 dailyMB: dailyMB.toFixed(2),
                 monthlyGB: monthlyGB.toFixed(2),
-                annualGB: annualGB.toFixed(2)
+                annualGB: annualGB.toFixed(2),
+                isCustom: data.isCustom || false
             });
         }
     }
@@ -101,12 +118,13 @@ function buildPdfHtml(unitName, examData, results, date, chartImages, logoBase64
     // Gerar tabela de exames
     const examsTableRows = examDetails.map(exam => `
         <tr>
-            <td>${exam.name}</td>
+            <td>${exam.name}${exam.isCustom ? ' *' : ''}</td>
             <td class="text-right">${exam.size} MB</td>
-            <td class="text-center">${exam.quantity}</td>
+            <td class="text-center">${exam.monthlyGoal}</td>
+            <td class="text-center">${exam.dailyQuantity}</td>
             <td class="text-right">${exam.dailyMB} MB</td>
-            <td class="text-right">${exam.monthlyGB.toFixed(2)} GB</td>
-            <td class="text-right">${exam.annualGB.toFixed(2)} GB</td>
+            <td class="text-right">${exam.monthlyGB} GB</td>
+            <td class="text-right">${exam.annualGB} GB</td>
         </tr>
     `).join('');
 
@@ -129,13 +147,25 @@ function buildPdfHtml(unitName, examData, results, date, chartImages, logoBase64
     // Informações sobre margem
     let marginInfo = '';
     if (results.marginApplied) {
+        const marginTypeText = results.marginType === 'progressive' ? 'Progressiva por ano' : 'Fixa para todos os períodos';
         marginInfo = `
-            <div style="margin-top: 10px; padding: 10px; background-color: #f0f9f0; border-radius: 5px; border: 1px solid #c3e6cb;">
-                <strong>Margem de Segurança Aplicada:</strong> ${results.marginPercentage}%
-                <br><small>Tipo: ${results.marginType === 'progressive' ? 'Progressiva por ano' : 'Fixa para todos os períodos'}</small>
+            <div style="margin-top: 10px; padding: 12px; background-color: ${results.marginType === 'progressive' ? '#fff5f5' : '#fff9e6'}; 
+                        border-radius: 6px; border: 1px solid ${results.marginType === 'progressive' ? '#fadbd8' : '#fcf3cf'}; 
+                        border-left: 4px solid ${results.marginType === 'progressive' ? '#e74c3c' : '#e67e22'};">
+                <strong style="color: ${results.marginType === 'progressive' ? '#e74c3c' : '#e67e22'};">Margem de Segurança Aplicada:</strong> 
+                <span style="font-weight: 600; color: ${results.marginType === 'progressive' ? '#e74c3c' : '#e67e22'};">${results.marginPercentage}%</span>
+                <br><small>Tipo: ${marginTypeText}</small>
             </div>
         `;
     }
+
+    // Verificar se há exames personalizados
+    const hasCustomExams = examDetails.some(exam => exam.isCustom);
+    const customExamNote = hasCustomExams ? `
+        <div style="margin-top: 10px; font-size: 10px; color: #7f8c8d;">
+            * Exames personalizados adicionados pelo usuário
+        </div>
+    ` : '';
 
     return `
         <!DOCTYPE html>
@@ -143,7 +173,7 @@ function buildPdfHtml(unitName, examData, results, date, chartImages, logoBase64
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Relatório PACS - Nova Versão</title>
+            <title>Relatório PACS - Sistema Avançado</title>
             <style>
                 body { 
                     font-family: 'Poppins', Arial, sans-serif; 
@@ -151,12 +181,14 @@ function buildPdfHtml(unitName, examData, results, date, chartImages, logoBase64
                     line-height: 1.6; 
                     padding: 0; 
                     margin: 0; 
-                    font-size: 12px;
+                    font-size: 11px;
                 }
                 .header { 
                     text-align: center; 
                     margin-bottom: 20px; 
                     padding-top: 20px; 
+                    border-bottom: 2px solid #24cec5;
+                    padding-bottom: 20px;
                 }
                 .logo { 
                     height: 60px; 
@@ -164,46 +196,51 @@ function buildPdfHtml(unitName, examData, results, date, chartImages, logoBase64
                 }
                 h1 { 
                     color: #055a71; 
-                    font-size: 20px; 
-                    margin: 5px 0 15px; 
+                    font-size: 18px; 
+                    margin: 5px 0 10px; 
                     font-weight: 600; 
                 }
                 h2 { 
                     color: #055a71; 
-                    font-size: 16px; 
+                    font-size: 14px; 
                     margin: 20px 0 10px; 
                     padding-bottom: 5px; 
-                    border-bottom: 2px solid #24cec5; 
+                    border-bottom: 1px solid #24cec5; 
                     font-weight: 500; 
                 }
                 .report-info { 
-                    margin-bottom: 20px; 
-                    font-size: 11px; 
+                    margin-bottom: 15px; 
+                    font-size: 10px; 
                     color: #666; 
+                    background-color: #f5fbfb;
+                    padding: 10px;
+                    border-radius: 5px;
                 }
                 table { 
                     width: 100%; 
                     border-collapse: collapse; 
                     margin: 15px 0; 
-                    font-size: 10px; 
+                    font-size: 9px; 
                     page-break-inside: avoid; 
                 }
                 th, td { 
                     border: 1px solid #ddd; 
-                    padding: 6px 8px; 
+                    padding: 5px 6px; 
+                    text-align: left;
                 }
                 th { 
                     background-color: #055a71; 
                     color: white; 
                     font-weight: 500; 
                     text-align: center; 
+                    font-size: 9px;
                 }
                 .text-center { text-align: center; }
                 .text-right { text-align: right; }
                 tr:nth-child(even) { background-color: #f9f9f9; }
                 .footer { 
                     margin-top: 30px; 
-                    font-size: 9px; 
+                    font-size: 8px; 
                     color: #666; 
                     text-align: center; 
                     padding-top: 10px; 
@@ -218,7 +255,7 @@ function buildPdfHtml(unitName, examData, results, date, chartImages, logoBase64
                 }
                 .summary p { 
                     margin: 5px 0; 
-                    font-size: 11px; 
+                    font-size: 10px; 
                 }
                 .highlight { 
                     font-weight: 600; 
@@ -230,30 +267,39 @@ function buildPdfHtml(unitName, examData, results, date, chartImages, logoBase64
                 }
                 .chart-container img { 
                     max-width: 100%; 
-                    max-height: 400px; 
+                    max-height: 350px; 
                     height: auto; 
                     margin: 10px 0; 
                     border: 1px solid #eee; 
                     display: block; 
+                    border-radius: 5px;
                 }
                 .chart-title { 
                     font-weight: 500; 
                     color: #055a71; 
                     margin-bottom: 5px; 
-                    font-size: 13px; 
+                    font-size: 12px; 
+                    text-align: center;
                 }
                 .section { 
-                    margin-bottom: 25px; 
+                    margin-bottom: 20px; 
                 }
                 @page { 
                     margin: 20mm 15mm; 
                 }
-                .margin-info {
-                    background-color: ${results.marginApplied ? '#f0f9f0' : '#f8f9fa'};
-                    padding: 8px;
-                    border-radius: 4px;
-                    margin: 5px 0;
-                    font-size: 10px;
+                .total-row {
+                    font-weight: bold; 
+                    background-color: #e8f4f8 !important;
+                }
+                .margin-note {
+                    font-size: 9px;
+                    color: #7f8c8d;
+                    font-style: italic;
+                    margin-top: 5px;
+                }
+                .custom-exam {
+                    color: #3498db;
+                    font-weight: 500;
                 }
             </style>
         </head>
@@ -261,12 +307,12 @@ function buildPdfHtml(unitName, examData, results, date, chartImages, logoBase64
             <div class="header">
                 ${logoBase64
                     ? `<img src="${logoBase64}" class="logo" alt="Polos Tecnologia">`
-                    : `<div style="font-size: 18px; color: #055a71; font-weight: bold;">Polos Tecnologia</div>`}
+                    : `<div style="font-size: 16px; color: #055a71; font-weight: bold;">Polos Tecnologia</div>`}
                 <h1>Relatório de Projeção de Armazenamento PACS</h1>
                 <div class="report-info">
                     <p><strong>Unidade:</strong> ${unitName}</p>
                     <p><strong>Data de geração:</strong> ${date}</p>
-                    <p><strong>Versão do Sistema:</strong> 2.0 - Quantidade de Exames Configurável</p>
+                    <p><strong>Versão do Sistema:</strong> 3.0 - Sistema Avançado com Metas Mensais</p>
                 </div>
             </div>
 
@@ -275,18 +321,20 @@ function buildPdfHtml(unitName, examData, results, date, chartImages, logoBase64
                     <h2>Resumo Executivo</h2>
                     <p><strong>Total de armazenamento mensal:</strong> <span class="highlight">${totalMonthlyGB.toFixed(2)} GB</span></p>
                     <p><strong>Armazenamento anual projetado:</strong> <span class="highlight">${results.annual}</span></p>
+                    <p><strong>Quantidade de tipos de exames configurados:</strong> ${examDetails.length}</p>
                     ${marginInfo}
                 </div>
             </div>
 
             <div class="section">
-                <h2>Detalhes por Tipo de Exame</h2>
+                <h2>Detalhamento por Tipo de Exame</h2>
                 <table>
                     <thead>
                         <tr>
                             <th>Tipo de Exame</th>
                             <th>Tamanho Médio (MB)</th>
-                            <th>Quantidade Diária</th>
+                            <th>Meta Mensal</th>
+                            <th>Quantidade/Dia</th>
                             <th>Armazen. Diário</th>
                             <th>Armazen. Mensal</th>
                             <th>Armazen. Anual</th>
@@ -294,27 +342,32 @@ function buildPdfHtml(unitName, examData, results, date, chartImages, logoBase64
                     </thead>
                     <tbody>
                         ${examsTableRows}
-                        <tr style="font-weight: bold; background-color: #e8f4f8;">
-                            <td colspan="4" class="text-right">TOTAL</td>
-                            <td class="text-right">${totalMonthlyGB.toFixed(2)} GB</td>
-                            <td class="text-right">${totalAnnualGB.toFixed(2)} GB</td>
+                        <tr class="total-row">
+                            <td colspan="4" class="text-right"><strong>TOTAL</strong></td>
+                            <td class="text-right"><strong>${(totalMonthlyGB * 1024 / 30).toFixed(2)} MB/dia</strong></td>
+                            <td class="text-right"><strong>${totalMonthlyGB.toFixed(2)} GB</strong></td>
+                            <td class="text-right"><strong>${totalAnnualGB.toFixed(2)} GB</strong></td>
                         </tr>
                     </tbody>
                 </table>
+                ${customExamNote}
+                <div class="margin-note">
+                    Nota: A quantidade diária é calculada automaticamente a partir da meta mensal (Meta Mensal ÷ 30 dias)
+                </div>
             </div>
 
             ${chartImages.distribution ? `
             <div class="section chart-container">
-                <div class="chart-title">Distribuição por Tipo de Exame (Mensal)</div>
-                <img src="${chartImages.distribution}" alt="Gráfico de Distribuição">
+                <div class="chart-title">Distribuição por Tipo de Exame (Armazenamento Mensal)</div>
+                <img src="${chartImages.distribution}" alt="Gráfico de Distribuição de Exames">
             </div>` : ''}
 
             <div class="section">
-                <h2>Projeção de Armazenamento</h2>
+                <h2>Projeção de Armazenamento com Margem de Segurança</h2>
                 ${results.marginApplied ? `
-                <div class="margin-info">
-                    <strong>Nota:</strong> Valores incluem margem de segurança de ${results.marginPercentage}%
-                    (${results.marginType === 'progressive' ? 'progressiva por ano' : 'fixa para todos os períodos'})
+                <div class="margin-note">
+                    Valores incluem margem de segurança de ${results.marginPercentage}% 
+                    (${results.marginType === 'progressive' ? 'aplicada progressivamente por ano' : 'aplicada igualmente a todos os períodos'})
                 </div>
                 ` : ''}
                 <table>
@@ -328,7 +381,7 @@ function buildPdfHtml(unitName, examData, results, date, chartImages, logoBase64
                         ${periods.map(period => `
                         <tr>
                             <td>${period.label}</td>
-                            <td class="text-right">${period.value}</td>
+                            <td class="text-right"><strong>${period.value}</strong></td>
                         </tr>`).join('')}
                     </tbody>
                 </table>
@@ -336,14 +389,15 @@ function buildPdfHtml(unitName, examData, results, date, chartImages, logoBase64
 
             ${chartImages.growth ? `
             <div class="section chart-container">
-                <div class="chart-title">Projeção de Crescimento</div>
-                <img src="${chartImages.growth}" alt="Gráfico de Crescimento">
+                <div class="chart-title">Projeção de Crescimento do Armazenamento</div>
+                <img src="${chartImages.growth}" alt="Gráfico de Projeção de Crescimento">
             </div>` : ''}
 
             <div class="footer">
                 <p>&copy; ${new Date().getFullYear()} Polos Tecnologia - Todos os direitos reservados</p>
                 <p>Desenvolvido por Célio Nora Junior | Analista de Suporte Técnico</p>
-                <p><small>Relatório gerado automaticamente pelo Sistema de Dimensionamento PACS v2.0</small></p>
+                <p><small>Relatório gerado automaticamente pelo Sistema de Dimensionamento PACS v3.0 - Sistema Avançado</small></p>
+                <p><small>Este relatório considera: Tamanhos médios de exames, metas mensais configuráveis, margem de segurança e projeções personalizadas</small></p>
             </div>
         </body>
         </html>

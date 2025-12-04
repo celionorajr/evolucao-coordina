@@ -31,7 +31,39 @@ function adjustChartsForMobile() {
 let distributionChart = null;
 let growthChart = null;
 let scrolling = false;
-let currentCalculations = {}; // Para armazenar cálculos atuais
+let currentCalculations = {};
+
+// Tabela de tamanhos médios por tipo de exame
+const examSizeDefaults = {
+  ressonancia: 600,
+  tomografia: 400,
+  raiox: 40,
+  ultrassom: 10,
+  densitometria: 10,
+  hemodinamica: 1000,
+  mamografia: 200,
+  ecocardio: 50,
+  endoscopia: 80,
+  colonoscopia: 120,
+  broncoscopia: 100,
+  custom: 100
+};
+
+// Tabela de nomes amigáveis
+const examFriendlyNames = {
+  ressonancia: 'Ressonância Magnética',
+  tomografia: 'Tomografia Computadorizada',
+  raiox: 'Raio-X Digital',
+  ultrassom: 'Ultrassom',
+  densitometria: 'Densitometria Óssea',
+  hemodinamica: 'Hemodinâmica',
+  mamografia: 'Mamografia Digital',
+  ecocardio: 'Ecocardiograma',
+  endoscopia: 'Endoscopia',
+  colonoscopia: 'Colonoscopia',
+  broncoscopia: 'Broncoscopia',
+  custom: 'Exame Personalizado'
+};
 
 // Função para encontrar o container rolável mais próximo
 function findScrollableParent(element) {
@@ -43,7 +75,7 @@ function findScrollableParent(element) {
     }
     parent = parent.parentElement;
   }
-  return document.documentElement; // Retorna o elemento raiz se nenhum container for encontrado
+  return document.documentElement;
 }
 
 // Função aprimorada para rolagem suave
@@ -51,24 +83,21 @@ function smoothScrollToElement(element) {
   if (!element) return;
 
   const isMobile = window.innerWidth <= 768;
-  const headerOffset = 80; // Ajuste conforme a altura do seu cabeçalho
+  const headerOffset = 80;
   const scrollableParent = findScrollableParent(element);
   const isBodyScroll = scrollableParent === document.documentElement;
   
-  // Calcula a posição considerando o container pai
   const elementRect = element.getBoundingClientRect();
   const parentRect = scrollableParent.getBoundingClientRect();
   const scrollPosition = isBodyScroll 
     ? window.pageYOffset + elementRect.top - headerOffset
     : scrollableParent.scrollTop + elementRect.top - parentRect.top - headerOffset;
 
-  // Configuração do scroll
   const scrollOptions = {
     top: scrollPosition,
     behavior: isMobile ? 'auto' : 'smooth'
   };
 
-  // Executa o scroll no elemento apropriado
   try {
     if (isBodyScroll) {
       window.scrollTo(scrollOptions);
@@ -76,7 +105,6 @@ function smoothScrollToElement(element) {
       scrollableParent.scrollTo(scrollOptions);
     }
   } catch (e) {
-    // Fallback para navegadores mais antigos
     if (isBodyScroll) {
       window.scrollTo(0, scrollPosition);
     } else {
@@ -85,13 +113,148 @@ function smoothScrollToElement(element) {
   }
 }
 
-function getExamValue(examName, field) {
-  const el = document.getElementById(`${examName}-${field}`);
-  if (!el) return 0;
-  const value = el.value.trim().replace(',', '.');
-  if (value === '') return 0;
-  const num = parseFloat(value);
-  return isNaN(num) || num < 0 ? 0 : num;
+// Função para atualizar o tamanho do exame baseado no tipo selecionado
+function updateExamSizeFromType(selectElement) {
+  const row = selectElement.closest('tr');
+  const sizeInput = row.querySelector('.exam-size');
+  const examType = selectElement.value;
+  const defaultSize = examSizeDefaults[examType] || 100;
+  
+  // Se for um exame personalizado, pedir nome
+  if (examType === 'custom') {
+    const nameInput = row.querySelector('.custom-exam-name');
+    if (nameInput) {
+      nameInput.style.display = 'block';
+      nameInput.placeholder = 'Nome do exame personalizado';
+    }
+  } else {
+    const nameInput = row.querySelector('.custom-exam-name');
+    if (nameInput) {
+      nameInput.style.display = 'none';
+    }
+  }
+  
+  // Atualizar valor apenas se o usuário não tiver modificado manualmente
+  if (!sizeInput.hasAttribute('data-user-modified')) {
+    sizeInput.value = defaultSize;
+  }
+}
+
+// Função para sincronizar meta mensal e quantidade diária
+function syncMonthlyGoalAndDailyQuantity(inputElement) {
+  const row = inputElement.closest('tr');
+  const monthlyGoalInput = row.querySelector('.exam-monthly-goal');
+  const dailyQuantityInput = row.querySelector('.exam-daily-quantity');
+  
+  if (inputElement === monthlyGoalInput) {
+    // Usuário preencheu meta mensal, calcular diária
+    const monthlyValue = parseFloat(monthlyGoalInput.value) || 0;
+    const dailyValue = monthlyValue / 30;
+    dailyQuantityInput.value = dailyValue > 0 ? dailyValue.toFixed(1) : '';
+  } else if (inputElement === dailyQuantityInput) {
+    // Usuário preencheu quantidade diária, calcular mensal
+    const dailyValue = parseFloat(dailyQuantityInput.value) || 0;
+    const monthlyValue = dailyValue * 30;
+    monthlyGoalInput.value = monthlyValue > 0 ? Math.round(monthlyValue) : '';
+  }
+}
+
+// Função para adicionar novo exame
+function addNewExam(examType, customName = null, size = 100) {
+  const tbody = document.getElementById('exams-tbody');
+  const template = document.getElementById('exam-row-template');
+  const newRow = template.cloneNode(true).querySelector('tr');
+  
+  // Configurar tipo de exame
+  const select = newRow.querySelector('.exam-type-select');
+  select.value = examType;
+  
+  // Se for custom, configurar nome
+  if (examType === 'custom' && customName) {
+    const nameInput = newRow.querySelector('.custom-exam-name');
+    nameInput.value = customName;
+    nameInput.style.display = 'block';
+  } else if (examType !== 'custom') {
+    // Para exames padrão, esconder campo de nome
+    const nameInput = newRow.querySelector('.custom-exam-name');
+    if (nameInput) nameInput.style.display = 'none';
+  }
+  
+  // Configurar tamanho
+  const sizeInput = newRow.querySelector('.exam-size');
+  sizeInput.value = size;
+  
+  // Adicionar eventos
+  newRow.querySelector('.exam-type-select').addEventListener('change', function() {
+    updateExamSizeFromType(this);
+  });
+  
+  newRow.querySelector('.exam-monthly-goal').addEventListener('input', function() {
+    syncMonthlyGoalAndDailyQuantity(this);
+  });
+  
+  newRow.querySelector('.exam-daily-quantity').addEventListener('input', function() {
+    syncMonthlyGoalAndDailyQuantity(this);
+  });
+  
+  newRow.querySelector('.exam-size').addEventListener('input', function() {
+    this.setAttribute('data-user-modified', 'true');
+  });
+  
+  newRow.querySelector('.remove-exam-btn').addEventListener('click', function() {
+    if (confirm('Remover este exame?')) {
+      this.closest('tr').remove();
+    }
+  });
+  
+  // Adicionar à tabela
+  tbody.appendChild(newRow);
+  
+  // Atualizar tamanho baseado no tipo
+  updateExamSizeFromType(select);
+}
+
+// Função para coletar dados dos exames
+function collectExamData() {
+  const examRows = document.querySelectorAll('#exams-tbody tr');
+  const examData = {};
+  
+  examRows.forEach((row, index) => {
+    const select = row.querySelector('.exam-type-select');
+    const examType = select.value;
+    const customNameInput = row.querySelector('.custom-exam-name');
+    
+    // Determinar nome do exame
+    let examName = examType;
+    let displayName = examFriendlyNames[examType] || 'Exame Personalizado';
+    
+    if (examType === 'custom' && customNameInput && customNameInput.value.trim()) {
+      examName = 'custom_' + customNameInput.value.trim().toLowerCase().replace(/\s+/g, '_');
+      displayName = customNameInput.value.trim();
+    }
+    
+    // Coletar valores
+    const size = parseFloat(row.querySelector('.exam-size').value) || 0;
+    const monthlyGoal = parseFloat(row.querySelector('.exam-monthly-goal').value) || 0;
+    const dailyQuantity = parseFloat(row.querySelector('.exam-daily-quantity').value) || 0;
+    
+    // Usar o que foi preenchido (meta mensal ou quantidade diária)
+    const quantity = monthlyGoal > 0 ? monthlyGoal / 30 : dailyQuantity;
+    
+    if (size > 0 && quantity > 0) {
+      examData[examName] = {
+        type: examType,
+        displayName: displayName,
+        size: size,
+        monthlyGoal: monthlyGoal,
+        dailyQuantity: quantity,
+        isCustom: examType === 'custom',
+        customName: examType === 'custom' && customNameInput ? customNameInput.value.trim() : null
+      };
+    }
+  });
+  
+  return examData;
 }
 
 function validateExamData(examData) {
@@ -101,17 +264,17 @@ function validateExamData(examData) {
   let examesInvalidos = [];
 
   for (const [exam, data] of Object.entries(examData)) {
-    if (data.size > 0 || data.quantity > 0) {
+    if (data.size > 0 || data.dailyQuantity > 0) {
       algumPreenchido = true;
       
-      if (data.size > 0 && data.quantity === 0) {
+      if (data.size > 0 && data.dailyQuantity === 0) {
         algumComTamanhoSemQtd = true;
-        examesInvalidos.push(`${exam} (tem tamanho mas não tem quantidade)`);
+        examesInvalidos.push(`${data.displayName} (tem tamanho mas não tem quantidade)`);
       }
       
-      if (data.quantity > 0 && data.size === 0) {
+      if (data.dailyQuantity > 0 && data.size === 0) {
         algumComQtdSemTamanho = true;
-        examesInvalidos.push(`${exam} (tem quantidade mas não tem tamanho)`);
+        examesInvalidos.push(`${data.displayName} (tem quantidade mas não tem tamanho)`);
       }
     }
   }
@@ -138,7 +301,6 @@ function calculateProjections(baseAnnualGB, years, marginConfig) {
         marginApplied = baseValue * (marginConfig.percentage / 100);
       } else if (marginConfig.type === 'progressive') {
         // Margem progressiva: aumenta com os anos
-        // Ex: ano 1 = 20%, ano 2 = 40%, ano 5 = 100% da margem
         const progressivePercentage = marginConfig.percentage * year;
         marginApplied = baseValue * (progressivePercentage / 100);
       }
@@ -188,13 +350,23 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     document.getElementById('current-year').textContent = new Date().getFullYear();
 
+    // Referências a elementos
     const calculateBtn = document.getElementById('calculate-btn');
     const resetBtn = document.getElementById('reset-btn');
     const generatePdfBtn = document.getElementById('generate-pdf');
     const resultsSection = document.getElementById('resultsSection');
     const applyMarginCheckbox = document.getElementById('apply-margin');
+    const addExamBtn = document.getElementById('add-exam-btn');
+    const addExamModal = document.getElementById('add-exam-modal');
+    const closeModalBtn = document.getElementById('close-modal');
+    const cancelAddExamBtn = document.getElementById('cancel-add-exam');
+    const saveNewExamBtn = document.getElementById('save-new-exam');
+    const newExamTypeSelect = document.getElementById('new-exam-type');
+    const customNameGroup = document.getElementById('custom-name-group');
+    const customExamNameInput = document.getElementById('custom-exam-name');
+    const newExamSizeInput = document.getElementById('new-exam-size');
 
-    // Configurar eventos
+    // Configurar eventos existentes
     calculateBtn.addEventListener('click', calculateProjection);
     resetBtn.addEventListener('click', resetForm);
     generatePdfBtn.addEventListener('click', handlePdfGeneration);
@@ -210,6 +382,96 @@ document.addEventListener('DOMContentLoaded', async function () {
       }
     });
 
+    // Configurar eventos dos exames existentes
+    document.querySelectorAll('.exam-type-select').forEach(select => {
+      select.addEventListener('change', function() {
+        updateExamSizeFromType(this);
+      });
+    });
+    
+    document.querySelectorAll('.exam-monthly-goal').forEach(input => {
+      input.addEventListener('input', function() {
+        syncMonthlyGoalAndDailyQuantity(this);
+      });
+    });
+    
+    document.querySelectorAll('.exam-daily-quantity').forEach(input => {
+      input.addEventListener('input', function() {
+        syncMonthlyGoalAndDailyQuantity(this);
+      });
+    });
+    
+    document.querySelectorAll('.exam-size').forEach(input => {
+      input.addEventListener('input', function() {
+        this.setAttribute('data-user-modified', 'true');
+      });
+    });
+
+    // Configurar modal para adicionar exames
+    addExamBtn.addEventListener('click', function() {
+      addExamModal.classList.add('active');
+      newExamTypeSelect.value = 'custom';
+      customNameGroup.style.display = 'none';
+      newExamSizeInput.value = 100;
+      customExamNameInput.value = '';
+    });
+    
+    closeModalBtn.addEventListener('click', function() {
+      addExamModal.classList.remove('active');
+    });
+    
+    cancelAddExamBtn.addEventListener('click', function() {
+      addExamModal.classList.remove('active');
+    });
+    
+    newExamTypeSelect.addEventListener('change', function() {
+      if (this.value === 'custom') {
+        customNameGroup.style.display = 'block';
+        newExamSizeInput.value = 100;
+      } else {
+        customNameGroup.style.display = 'none';
+        newExamSizeInput.value = examSizeDefaults[this.value] || 100;
+      }
+    });
+    
+    saveNewExamBtn.addEventListener('click', function() {
+      const examType = newExamTypeSelect.value;
+      let customName = null;
+      
+      if (examType === 'custom') {
+        customName = customExamNameInput.value.trim();
+        if (!customName) {
+          alert('Por favor, informe um nome para o exame personalizado.');
+          customExamNameInput.focus();
+          return;
+        }
+      }
+      
+      const size = parseFloat(newExamSizeInput.value) || 100;
+      
+      addNewExam(examType, customName, size);
+      addExamModal.classList.remove('active');
+      
+      // Scroll para o novo exame
+      const examsTable = document.getElementById('exams-table');
+      smoothScrollToElement(examsTable);
+    });
+
+    // Fechar modal com ESC
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && addExamModal.classList.contains('active')) {
+        addExamModal.classList.remove('active');
+      }
+    });
+
+    // Fechar modal clicando fora
+    addExamModal.addEventListener('click', function(e) {
+      if (e.target === this) {
+        this.classList.remove('active');
+      }
+    });
+
+    // Função principal de cálculo
     function calculateProjection() {
       if (scrolling) return;
       scrolling = true;
@@ -225,36 +487,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
 
         // Coletar dados dos exames
-        const examData = {
-          ressonancia: {
-            size: getExamValue('ressonancia', 'size'),
-            quantity: getExamValue('ressonancia', 'qtd')
-          },
-          tomografia: {
-            size: getExamValue('tomografia', 'size'),
-            quantity: getExamValue('tomografia', 'qtd')
-          },
-          raiox: {
-            size: getExamValue('raiox', 'size'),
-            quantity: getExamValue('raiox', 'qtd')
-          },
-          ultrassom: {
-            size: getExamValue('ultrassom', 'size'),
-            quantity: getExamValue('ultrassom', 'qtd')
-          },
-          densitometria: {
-            size: getExamValue('densitometria', 'size'),
-            quantity: getExamValue('densitometria', 'qtd')
-          },
-          hemodinamica: {
-            size: getExamValue('hemodinamica', 'size'),
-            quantity: getExamValue('hemodinamica', 'qtd')
-          },
-          mamografia: {
-            size: getExamValue('mamografia', 'size'),
-            quantity: getExamValue('mamografia', 'qtd')
-          }
-        };
+        const examData = collectExamData();
 
         // Validar dados
         const validation = validateExamData(examData);
@@ -291,19 +524,22 @@ document.addEventListener('DOMContentLoaded', async function () {
         let totalMonthlyMB = 0;
         const examResults = {};
 
-        for (const [exam, data] of Object.entries(examData)) {
-          if (data.size > 0 && data.quantity > 0) {
-            const dailyMB = data.size * data.quantity;
+        for (const [examId, data] of Object.entries(examData)) {
+          if (data.size > 0 && data.dailyQuantity > 0) {
+            const dailyMB = data.size * data.dailyQuantity;
             const monthlyMB = dailyMB * 30;
             const annualGB = (dailyMB * 365) / 1024;
 
-            examResults[exam] = {
+            examResults[examId] = {
+              displayName: data.displayName,
               size: data.size,
-              quantity: data.quantity,
+              monthlyGoal: data.monthlyGoal,
+              dailyQuantity: data.dailyQuantity,
               dailyMB: dailyMB,
               monthlyMB: monthlyMB,
               annualGB: annualGB,
-              monthlyGB: monthlyMB / 1024
+              monthlyGB: monthlyMB / 1024,
+              isCustom: data.isCustom
             };
 
             totalMonthlyMB += monthlyMB;
@@ -326,6 +562,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         currentCalculations = {
           unitName: unitName,
           examResults: examResults,
+          examData: examData,
           totalAnnualGB: annualGB,
           totalMonthlyGB: totalMonthlyMB / 1024,
           marginConfig: marginConfig,
@@ -334,7 +571,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         };
 
         // Atualizar interface
-        updateResults(projections, customYears);
+        updateResults(projections, customYears, marginConfig);
         updateCharts(examResults, projections, marginConfig);
         adjustChartsForMobile();
 
@@ -353,7 +590,7 @@ document.addEventListener('DOMContentLoaded', async function () {
       }
     }
 
-    function updateResults(projections, customYears) {
+    function updateResults(projections, customYears, marginConfig) {
       // Atualizar todos os cards
       const periods = [
         { id: 'annual', year: 1, element: 'annual-result', marginElement: 'annual-margin-info' },
@@ -374,23 +611,21 @@ document.addEventListener('DOMContentLoaded', async function () {
           }
           
           if (marginElement) {
-            if (currentCalculations.marginConfig.apply && projection.margin > 0) {
+            if (marginConfig.apply && projection.margin > 0) {
               marginElement.textContent = `(+${formatStorage(projection.margin)})`;
               marginElement.style.display = 'block';
               
-              // Adicionar tooltip com detalhes da margem
-              marginElement.title = `Margem aplicada: ${projection.marginPercentage}%`;
-              
-              // Estilizar baseado no tipo de margem
-              if (currentCalculations.marginConfig.type === 'progressive') {
-                marginElement.style.color = '#e74c3c';
-                marginElement.title += ' (progressiva)';
+              // Aplicar cores diferenciadas
+              if (marginConfig.type === 'progressive') {
+                marginElement.className = 'margin-progressive';
+                marginElement.title = `Margem progressiva aplicada: ${projection.marginPercentage}% × ${period.year} ano(s) = ${projection.marginPercentage * period.year}%`;
               } else {
-                marginElement.style.color = '#27ae60';
-                marginElement.title += ' (fixa)';
+                marginElement.className = 'margin-highlight';
+                marginElement.title = `Margem fixa aplicada: ${projection.marginPercentage}%`;
               }
             } else {
               marginElement.style.display = 'none';
+              marginElement.className = '';
             }
           }
         }
@@ -405,20 +640,20 @@ document.addEventListener('DOMContentLoaded', async function () {
           document.getElementById('custom-result').textContent = formatStorage(projection.final);
           
           const customMarginElement = document.getElementById('custom-margin-info');
-          if (currentCalculations.marginConfig.apply && projection.margin > 0) {
+          if (marginConfig.apply && projection.margin > 0) {
             customMarginElement.textContent = `(+${formatStorage(projection.margin)})`;
             customMarginElement.style.display = 'block';
-            customMarginElement.title = `Margem aplicada: ${projection.marginPercentage}%`;
             
-            if (currentCalculations.marginConfig.type === 'progressive') {
-              customMarginElement.style.color = '#e74c3c';
-              customMarginElement.title += ' (progressiva)';
+            if (marginConfig.type === 'progressive') {
+              customMarginElement.className = 'margin-progressive';
+              customMarginElement.title = `Margem progressiva: ${projection.marginPercentage}% × ${customYears} anos = ${projection.marginPercentage * customYears}%`;
             } else {
-              customMarginElement.style.color = '#27ae60';
-              customMarginElement.title += ' (fixa)';
+              customMarginElement.className = 'margin-highlight';
+              customMarginElement.title = `Margem fixa: ${projection.marginPercentage}%`;
             }
           } else {
             customMarginElement.style.display = 'none';
+            customMarginElement.className = '';
           }
           
           customContainer.style.display = 'block';
@@ -437,12 +672,19 @@ document.addEventListener('DOMContentLoaded', async function () {
       const ctx = document.getElementById('distributionChart').getContext('2d');
       const labels = [];
       const data = [];
-      const backgroundColors = ['#055a71', '#24cec5', '#178f96', '#1da0a5', '#23adac', '#2c3e50', '#8e44ad'];
+      const backgroundColors = [
+        '#055a71', '#24cec5', '#178f96', '#1da0a5', 
+        '#23adac', '#2c3e50', '#8e44ad', '#3498db',
+        '#2ecc71', '#e74c3c', '#f39c12', '#d35400',
+        '#16a085', '#27ae60', '#2980b9', '#8e44ad'
+      ];
 
-      for (const [exam, info] of Object.entries(examResults)) {
+      let colorIndex = 0;
+      for (const [examId, info] of Object.entries(examResults)) {
         if (info.monthlyMB > 0) {
-          labels.push(exam.charAt(0).toUpperCase() + exam.slice(1));
-          data.push(info.monthlyGB); // Usar GB para melhor legibilidade
+          labels.push(info.displayName);
+          data.push(info.monthlyGB);
+          colorIndex++;
         }
       }
 
@@ -454,8 +696,9 @@ document.addEventListener('DOMContentLoaded', async function () {
           labels: labels,
           datasets: [{
             data: data,
-            backgroundColor: backgroundColors,
-            borderWidth: 1
+            backgroundColor: backgroundColors.slice(0, labels.length),
+            borderWidth: 1,
+            borderColor: 'rgba(255, 255, 255, 0.8)'
           }]
         },
         options: {
@@ -469,7 +712,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                 font: {
                   size: window.innerWidth <= 768 ? 10 : 12
                 },
-                boxWidth: 12
+                boxWidth: 12,
+                usePointStyle: true
               }
             },
             tooltip: {
@@ -503,6 +747,15 @@ document.addEventListener('DOMContentLoaded', async function () {
       
       if (growthChart) growthChart.destroy();
 
+      // Configurar cores baseadas no tipo de margem
+      const marginColor = marginConfig.type === 'progressive' 
+        ? 'rgba(231, 76, 60, 0.8)'  // Vermelho mais vibrante
+        : 'rgba(230, 126, 34, 0.8)'; // Laranja mais vibrante
+      
+      const marginBorderColor = marginConfig.type === 'progressive'
+        ? '#e74c3c'
+        : '#e67e22';
+
       growthChart = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -529,6 +782,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                 font: {
                   size: window.innerWidth <= 768 ? 10 : 12
                 }
+              },
+              grid: {
+                color: 'rgba(0, 0, 0, 0.05)'
               }
             },
             x: {
@@ -538,6 +794,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                 font: {
                   size: window.innerWidth <= 768 ? 10 : 12
                 }
+              },
+              grid: {
+                display: false
               }
             }
           },
@@ -550,19 +809,25 @@ document.addEventListener('DOMContentLoaded', async function () {
                   let tooltip = `Base: ${formatStorage(projection.base)}`;
                   
                   if (marginConfig.apply && projection.margin > 0) {
-                    tooltip += `\nMargem: +${formatStorage(projection.margin)}`;
+                    const marginTypeText = marginConfig.type === 'progressive' ? 'progressiva' : 'fixa';
+                    tooltip += `\nMargem ${marginTypeText}: +${formatStorage(projection.margin)}`;
                     tooltip += `\nTotal: ${formatStorage(projection.final)}`;
                   }
                   
                   return tooltip;
                 }
-              }
+              },
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              titleColor: '#fff',
+              bodyColor: '#fff'
             },
             legend: {
               labels: {
                 font: {
                   size: window.innerWidth <= 768 ? 10 : 12
-                }
+                },
+                padding: 20,
+                usePointStyle: true
               }
             }
           }
@@ -572,13 +837,12 @@ document.addEventListener('DOMContentLoaded', async function () {
       // Se houver margem, adicionar dataset sobreposto
       if (marginConfig.apply) {
         growthChart.data.datasets.push({
-          label: 'Margem de Segurança',
+          label: marginConfig.type === 'progressive' ? 'Margem Progressiva' : 'Margem Fixa',
           data: years.map(year => projections[year].margin),
-          backgroundColor: marginConfig.type === 'progressive' 
-            ? 'rgba(231, 76, 60, 0.7)' 
-            : 'rgba(39, 174, 96, 0.7)',
-          borderWidth: 1,
-          borderColor: marginConfig.type === 'progressive' ? '#e74c3c' : '#27ae60'
+          backgroundColor: marginColor,
+          borderWidth: 2,
+          borderColor: marginBorderColor,
+          borderRadius: 3
         });
         
         growthChart.update();
@@ -589,16 +853,19 @@ document.addEventListener('DOMContentLoaded', async function () {
       resultsSection.style.display = 'none';
       
       // Resetar campos de margem
-      document.getElementById('apply-margin').checked = false;
-      document.getElementById('marginFields').classList.remove('active');
+      document.getElementById('apply-margin').checked = true;
+      document.getElementById('marginFields').classList.add('active');
       document.getElementById('margin-percentage').value = '20';
+      document.getElementById('margin-type').value = 'fixed';
       
       // Esconder informações de margem
       const marginInfoElements = document.querySelectorAll('[id$="-margin-info"]');
       marginInfoElements.forEach(el => {
         el.style.display = 'none';
+        el.className = '';
       });
 
+      // Resetar gráficos
       if (distributionChart) {
         distributionChart.destroy();
         distributionChart = null;
@@ -611,6 +878,32 @@ document.addEventListener('DOMContentLoaded', async function () {
       
       // Limpar cálculos atuais
       currentCalculations = {};
+      
+      // Resetar tabela para apenas dois exames iniciais
+      const tbody = document.getElementById('exams-tbody');
+      const initialRows = tbody.querySelectorAll('tr');
+      
+      // Manter apenas os dois primeiros (ressonância e tomografia)
+      for (let i = initialRows.length - 1; i >= 2; i--) {
+        initialRows[i].remove();
+      }
+      
+      // Resetar valores dos dois primeiros
+      const firstRow = tbody.querySelector('tr:nth-child(1)');
+      if (firstRow) {
+        firstRow.querySelector('.exam-type-select').value = 'ressonancia';
+        firstRow.querySelector('.exam-size').value = '600';
+        firstRow.querySelector('.exam-monthly-goal').value = '';
+        firstRow.querySelector('.exam-daily-quantity').value = '';
+      }
+      
+      const secondRow = tbody.querySelector('tr:nth-child(2)');
+      if (secondRow) {
+        secondRow.querySelector('.exam-type-select').value = 'tomografia';
+        secondRow.querySelector('.exam-size').value = '400';
+        secondRow.querySelector('.exam-monthly-goal').value = '';
+        secondRow.querySelector('.exam-daily-quantity').value = '';
+      }
     }
 
     async function handlePdfGeneration() {
@@ -641,16 +934,8 @@ document.addEventListener('DOMContentLoaded', async function () {
         throw new Error('Gráficos não encontrados. Calcule a projeção primeiro.');
       }
 
-      // Coletar dados dos inputs para o PDF
-      const examData = {};
-      const examTypes = ['ressonancia', 'tomografia', 'raiox', 'ultrassom', 'densitometria', 'hemodinamica', 'mamografia'];
-
-      examTypes.forEach(exam => {
-        examData[exam] = {
-          size: getExamValue(exam, 'size'),
-          quantity: getExamValue(exam, 'qtd')
-        };
-      });
+      // Coletar dados para o PDF
+      const examData = collectExamData();
 
       // Preparar resultados para o PDF
       const results = {
@@ -713,7 +998,8 @@ document.addEventListener('DOMContentLoaded', async function () {
               scale: 2,
               logging: false,
               useCORS: true,
-              allowTaint: true
+              allowTaint: true,
+              backgroundColor: '#ffffff'
             });
             images[name] = canvas.toDataURL('image/png');
           } catch (error) {
@@ -726,7 +1012,7 @@ document.addEventListener('DOMContentLoaded', async function () {
       return images;
     }
 
-    console.log('Aplicação inicializada com sucesso');
+    console.log('Aplicação inicializada com sucesso - Versão 3.0');
 
   } catch (error) {
     console.error('Erro ao carregar a aplicação:', error);

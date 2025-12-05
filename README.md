@@ -141,7 +141,6 @@ Este projeto é propriedade intelectual da **Polos Tecnologia** e está sob lice
 **Desenvolvedor**: Célio Nora Junior  
 **Email**: [cnoraj@gmail.com](mailto:cnoraj@gmail.com)  
 **Repositório**: [github.com/celionorajr/evolucao-coordina](https://github.com/celionorajr/evolucao-coordina)
-Aqui está a seção de testes que você pode adicionar ao final do seu README.md:
 
 ---
 

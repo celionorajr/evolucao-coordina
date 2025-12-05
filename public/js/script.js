@@ -35,13 +35,13 @@ let currentCalculations = {};
 
 // Tabela de tamanhos médios por tipo de exame
 const examSizeDefaults = {
-  ressonancia: 600,
-  tomografia: 400,
-  raiox: 40,
-  ultrassom: 10,
+  ressonancia: 18,
+  tomografia: 270,
+  raiox: 15,
+  ultrassom: 7,
   densitometria: 10,
-  hemodinamica: 1000,
-  mamografia: 200,
+  hemodinamica: 53,
+  mamografia: 17,
   ecocardio: 50,
   endoscopia: 80,
   colonoscopia: 120,

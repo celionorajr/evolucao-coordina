@@ -438,8 +438,9 @@ h3 {
   .chart-wrapper h3 {
     font-size: 1.1rem;
   }
+}
 
-  /* Adicionar ao final do arquivo style.css existente */
+/* ========== NOVOS ESTILOS ADICIONADOS ========== */
 
 .margin-section {
     background-color: #f5fbfb;
@@ -543,37 +544,140 @@ h3 {
     width: 30%;
 }
 
-@media (max-width: 768px) {
-    .exam-table td:nth-child(2):before {
-        content: "Tamanho (MB): ";
-    }
-    
-    .exam-table td:nth-child(3):before {
-        content: "Qtd/dia: ";
-    }
-    
-    .margin-fields {
-        padding: 12px;
-    }
-    
-    .margin-fields input[type="number"],
-    .margin-fields select {
-        padding: 8px 10px;
-        font-size: 0.9rem;
-    }
+/* Estilização dos selects nos exames */
+.exam-table select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    background-color: white;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23055a71' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 16px;
+    appearance: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
-@media (max-width: 480px) {
-    .margin-section {
-        padding: 15px;
-    }
-    
-    .checkbox-group label {
-        font-size: 0.9rem;
-    }
+.exam-table select:focus {
+    border-color: var(--secondary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(36, 206, 197, 0.2);
 }
 
-/* Adicione ao final do arquivo style.css */
+.exam-table select:hover {
+    border-color: #1da0a5;
+}
+
+/* Estilo para select do modal */
+#new-exam-type {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    background-color: white;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23055a71' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 16px;
+    appearance: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#new-exam-type:focus {
+    border-color: var(--secondary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(36, 206, 197, 0.2);
+}
+
+/* Estilo para selects com valor padrão vs personalizado */
+.exam-table select option[value="custom"] {
+    color: #3498db;
+    font-weight: 600;
+}
+
+/* Diferentes cores para diferentes tipos de exames (opcional) */
+.exam-table select option[value="ressonancia"] { color: #055a71; }
+.exam-table select option[value="tomografia"] { color: #178f96; }
+.exam-table select option[value="raiox"] { color: #1da0a5; }
+.exam-table select option[value="ultrassom"] { color: #23adac; }
+.exam-table select option[value="densitometria"] { color: #2c3e50; }
+.exam-table select option[value="hemodinamica"] { color: #8e44ad; }
+.exam-table select option[value="mamografia"] { color: #3498db; }
+.exam-table select option[value="ecocardio"] { color: #2ecc71; }
+.exam-table select option[value="endoscopia"] { color: #e74c3c; }
+.exam-table select option[value="colonoscopia"] { color: #f39c12; }
+.exam-table select option[value="broncoscopia"] { color: #d35400; }
+
+/* Remove o estilo padrão do select no Internet Explorer */
+.exam-table select::-ms-expand {
+    display: none;
+}
+
+/* Estilo para select quando está desabilitado */
+.exam-table select:disabled {
+    background-color: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+    border-color: #e0e0e0;
+}
+
+/* Estilos para os exames existentes na tabela inicial */
+#exams-tbody tr:not(.custom-exam-row) .exam-type-select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    background-color: white;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23055a71' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 16px;
+    appearance: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+#exams-tbody tr:not(.custom-exam-row) .exam-type-select:focus {
+    border-color: #24cec5;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(36, 206, 197, 0.2);
+}
+
+#exams-tbody tr:not(.custom-exam-row) .exam-type-select:hover {
+    border-color: #1da0a5;
+}
+
+/* Aplicar também aos inputs já existentes */
+#exams-tbody tr:not(.custom-exam-row) .exam-size,
+#exams-tbody tr:not(.custom-exam-row) .exam-monthly-goal,
+#exams-tbody tr:not(.custom-exam-row) .exam-daily-quantity {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+#exams-tbody tr:not(.custom-exam-row) .exam-size:focus,
+#exams-tbody tr:not(.custom-exam-row) .exam-monthly-goal:focus,
+#exams-tbody tr:not(.custom-exam-row) .exam-daily-quantity:focus {
+    border-color: #24cec5;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(36, 206, 197, 0.2);
+}
 
 .exam-actions {
     text-align: right;
@@ -797,269 +901,6 @@ h3 {
     opacity: 1;
 }
 
-/* Estilos para a tabela atualizada */
-.exam-table select {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-family: 'Poppins', sans-serif;
-    font-size: 1rem;
-    background-color: white;
-    transition: all 0.3s;
-}
-
-.exam-table select:focus {
-    border-color: var(--secondary-color);
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(36, 206, 197, 0.2);
-}
-
-.exam-table th:nth-child(1),
-.exam-table td:nth-child(1) {
-    width: 25%;
-}
-
-.exam-table th:nth-child(2),
-.exam-table td:nth-child(2) {
-    width: 20%;
-}
-
-.exam-table th:nth-child(3),
-.exam-table td:nth-child(3) {
-    width: 20%;
-    text-align: center;
-}
-
-.exam-table th:nth-child(4),
-.exam-table td:nth-child(4) {
-    width: 20%;
-    text-align: center;
-}
-
-.exam-table th:nth-child(5),
-.exam-table td:nth-child(5) {
-    width: 15%;
-    text-align: center;
-}
-
-/* Result cards com melhor destaque para margem */
-.result-card small {
-    font-size: 0.85rem;
-    display: none;
-    margin-top: 8px;
-    padding: 4px 8px;
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
-    transition: all 0.3s;
-}
-
-.result-card:hover small {
-    background-color: rgba(255, 255, 255, 0.3);
-}
-
-/* Responsividade para a nova tabela */
-@media (max-width: 992px) {
-    .exam-table th,
-    .exam-table td {
-        padding: 12px 10px;
-    }
-    
-    .exam-table select,
-    .exam-table input {
-        padding: 10px 12px;
-        font-size: 0.95rem;
-    }
-}
-
-@media (max-width: 768px) {
-    .exam-table {
-        display: block;
-    }
-    
-    .exam-table thead {
-        display: none;
-    }
-    
-    .exam-table tbody, .exam-table tr, .exam-table td {
-        display: block;
-        width: 100%;
-    }
-    
-    .exam-table tr {
-        margin-bottom: 20px;
-        padding: 15px;
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-    
-    .exam-table td {
-        padding: 10px 0;
-        border: none !important;
-    }
-    
-    .exam-table td:before {
-        content: attr(data-label);
-        display: inline-block;
-        width: 140px;
-        font-weight: 500;
-        color: var(--primary-color);
-        margin-bottom: 5px;
-    }
-    
-    .exam-table td[data-label="Ações"] {
-        text-align: right;
-        padding-top: 15px;
-        border-top: 1px solid #eee !important;
-    }
-    
-    .exam-table td[data-label="Ações"]:before {
-        display: none;
-    }
-    
-    .exam-table select,
-    .exam-table input {
-        width: 100%;
-    }
-    
-    .btn-add-exam {
-        width: 100%;
-        justify-content: center;
-        padding: 15px;
-        font-size: 1.1rem;
-    }
-    
-    .modal-content {
-        padding: 20px;
-        width: 95%;
-    }
-    
-    .modal-header h3 {
-        font-size: 1.2rem;
-    }
-    
-    .btn-modal-cancel,
-    .btn-modal-save {
-        min-width: 100px;
-        padding: 10px 20px;
-    }
-}
-
-@media (max-width: 480px) {
-    .modal-content {
-        padding: 15px;
-    }
-    
-    .modal-header {
-        margin-bottom: 20px;
-    }
-    
-    .modal-body .form-group {
-        margin-bottom: 15px;
-    }
-    
-    .info-tooltip .tooltip-text {
-        width: 250px;
-        font-size: 12px;
-    }
-    
-    .exam-table tr {
-        padding: 12px;
-    }
-    
-    .exam-table td:before {
-        width: 120px;
-        font-size: 0.9rem;
-    }
-}
-
-
-/* Estilização dos selects nos exames */
-.exam-table select {
-    width: 100%;
-    padding: 12px 15px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    font-family: 'Poppins', sans-serif;
-    font-size: 1rem;
-    background-color: white;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23055a71' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 15px center;
-    background-size: 16px;
-    appearance: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-}
-
-.exam-table select:focus {
-    border-color: #24cec5;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(36, 206, 197, 0.2);
-}
-
-.exam-table select:hover {
-    border-color: #1da0a5;
-}
-
-/* Estilo para select do modal */
-#new-exam-type {
-    width: 100%;
-    padding: 12px 15px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    font-family: 'Poppins', sans-serif;
-    font-size: 1rem;
-    background-color: white;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23055a71' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 15px center;
-    background-size: 16px;
-    appearance: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-#new-exam-type:focus {
-    border-color: #24cec5;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(36, 206, 197, 0.2);
-}
-
-/* Estilo para selects com valor padrão vs personalizado */
-.exam-table select option[value="custom"] {
-    color: #3498db;
-    font-weight: 600;
-}
-
-/* Diferentes cores para diferentes tipos de exames (opcional) */
-.exam-table select option[value="ressonancia"] { color: #055a71; }
-.exam-table select option[value="tomografia"] { color: #178f96; }
-.exam-table select option[value="raiox"] { color: #1da0a5; }
-.exam-table select option[value="ultrassom"] { color: #23adac; }
-.exam-table select option[value="densitometria"] { color: #2c3e50; }
-.exam-table select option[value="hemodinamica"] { color: #8e44ad; }
-.exam-table select option[value="mamografia"] { color: #3498db; }
-.exam-table select option[value="ecocardio"] { color: #2ecc71; }
-.exam-table select option[value="endoscopia"] { color: #e74c3c; }
-.exam-table select option[value="colonoscopia"] { color: #f39c12; }
-.exam-table select option[value="broncoscopia"] { color: #d35400; }
-
-/* Remove o estilo padrão do select no Internet Explorer */
-.exam-table select::-ms-expand {
-    display: none;
-}
-
-/* Estilo para select quando está desabilitado */
-.exam-table select:disabled {
-    background-color: #f5f5f5;
-    color: #999;
-    cursor: not-allowed;
-    border-color: #e0e0e0;
-}
-
 /* Responsividade para selects */
 @media (max-width: 768px) {
     .exam-table select {
@@ -1073,5 +914,58 @@ h3 {
         font-size: 0.95rem;
         background-position: right 12px center;
     }
+    
+    .margin-fields {
+        padding: 12px;
+    }
+    
+    .margin-fields input[type="number"],
+    .margin-fields select {
+        padding: 8px 10px;
+        font-size: 0.9rem;
+    }
+    
+    .exam-table td:nth-child(2):before {
+        content: "Tamanho (MB): ";
+    }
+    
+    .exam-table td:nth-child(3):before {
+        content: "Meta Mensal: ";
+    }
+    
+    .exam-table td:nth-child(4):before {
+        content: "Qtd/dia: ";
+    }
 }
+
+@media (max-width: 480px) {
+    .margin-section {
+        padding: 15px;
+    }
+    
+    .checkbox-group label {
+        font-size: 0.9rem;
+    }
+    
+    .btn-add-exam {
+        width: 100%;
+        justify-content: center;
+        padding: 15px;
+        font-size: 1.1rem;
+    }
+    
+    .modal-content {
+        padding: 15px;
+        width: 95%;
+    }
+    
+    .modal-header h3 {
+        font-size: 1.2rem;
+    }
+    
+    .btn-modal-cancel,
+    .btn-modal-save {
+        min-width: 100px;
+        padding: 10px 20px;
+    }
 }

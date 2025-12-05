@@ -113,235 +113,300 @@ function smoothScrollToElement(element) {
   }
 }
 
-// Função para atualizar tamanho do exame baseado no tipo
+// Função para inicializar estilos dos selects existentes
+function initializeExistingSelectStyles() {
+  console.log('Inicializando estilos para selects existentes...');
+  
+  // Aplicar estilos aos selects já existentes
+  document.querySelectorAll('#exams-tbody tr:not(.custom-exam-row) .exam-type-select').forEach(select => {
+    select.style.cssText = `
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      background-color: white;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23055a71' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 15px center;
+      background-size: 16px;
+      appearance: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    `;
+  });
+  
+  // Aplicar estilos aos inputs já existentes
+  document.querySelectorAll('#exams-tbody tr:not(.custom-exam-row) .exam-size, #exams-tbody tr:not(.custom-exam-row) .exam-monthly-goal, #exams-tbody tr:not(.custom-exam-row) .exam-daily-quantity').forEach(input => {
+    input.style.cssText = `
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    `;
+  });
+  
+  console.log('Estilos aplicados aos selects existentes');
+}
+
+// Função para atualizar o tamanho do exame baseado no tipo selecionado
 function updateExamSizeFromType(selectElement) {
-    console.log('Atualizando tamanho do exame para tipo:', selectElement.value);
-    
-    const row = selectElement.closest('tr');
-    if (!row) {
-        console.error('Linha não encontrada para o select');
-        return;
+  console.log('Atualizando tamanho do exame para tipo:', selectElement.value);
+  
+  const row = selectElement.closest('tr');
+  if (!row) {
+    console.error('Linha não encontrada para o select');
+    return;
+  }
+  
+  const sizeInput = row.querySelector('.exam-size');
+  if (!sizeInput) {
+    console.error('Campo de tamanho não encontrado na linha');
+    return;
+  }
+  
+  const examType = selectElement.value;
+  const defaultSize = examSizeDefaults[examType] || 100;
+  console.log('Tamanho padrão para', examType, ':', defaultSize);
+  
+  // Atualizar valor apenas se o usuário não tiver modificado manualmente
+  if (!sizeInput.hasAttribute('data-user-modified')) {
+    sizeInput.value = defaultSize;
+    console.log('Tamanho atualizado para:', defaultSize);
+  } else {
+    console.log('Tamanho mantido (modificado pelo usuário):', sizeInput.value);
+  }
+  
+  // Se for um exame personalizado, mostrar campo de nome
+  if (examType === 'custom') {
+    const nameInput = row.querySelector('.custom-exam-name');
+    if (nameInput) {
+      nameInput.style.display = 'block';
+      nameInput.placeholder = 'Nome do exame personalizado';
+      console.log('Campo de nome personalizado exibido');
     }
-    
-    const sizeInput = row.querySelector('.exam-size');
-    if (!sizeInput) {
-        console.error('Campo de tamanho não encontrado na linha');
-        return;
+  } else {
+    // Para exames padrão, esconder campo de nome
+    const nameInput = row.querySelector('.custom-exam-name');
+    if (nameInput) {
+      nameInput.style.display = 'none';
+      console.log('Campo de nome personalizado ocultado');
     }
-    
-    const examType = selectElement.value;
-    const defaultSize = examSizeDefaults[examType] || 100;
-    console.log('Tamanho padrão para', examType, ':', defaultSize);
-    
-    // Atualizar valor apenas se o usuário não tiver modificado manualmente
-    if (!sizeInput.hasAttribute('data-user-modified')) {
-        sizeInput.value = defaultSize;
-        console.log('Tamanho atualizado para:', defaultSize);
-    } else {
-        console.log('Tamanho mantido (modificado pelo usuário):', sizeInput.value);
-    }
-    
-    // Se for um exame personalizado, mostrar campo de nome
-    if (examType === 'custom') {
-        const nameInput = row.querySelector('.custom-exam-name');
-        if (nameInput) {
-            nameInput.style.display = 'block';
-            nameInput.placeholder = 'Nome do exame personalizado';
-            console.log('Campo de nome personalizado exibido');
-        }
-    } else {
-        // Para exames padrão, esconder campo de nome
-        const nameInput = row.querySelector('.custom-exam-name');
-        if (nameInput) {
-            nameInput.style.display = 'none';
-            console.log('Campo de nome personalizado ocultado');
-        }
-    }
+  }
 }
 
 // Função para sincronizar meta mensal e quantidade diária
 function syncMonthlyGoalAndDailyQuantity(inputElement) {
-    console.log('Sincronizando meta mensal/quantidade diária');
-    
-    const row = inputElement.closest('tr');
-    if (!row) {
-        console.error('Linha não encontrada');
-        return;
-    }
-    
-    const monthlyGoalInput = row.querySelector('.exam-monthly-goal');
-    const dailyQuantityInput = row.querySelector('.exam-daily-quantity');
-    
-    if (!monthlyGoalInput || !dailyQuantityInput) {
-        console.error('Campos de meta não encontrados');
-        return;
-    }
-    
-    if (inputElement === monthlyGoalInput) {
-        // Usuário preencheu meta mensal, calcular diária
-        const monthlyValue = parseFloat(monthlyGoalInput.value) || 0;
-        const dailyValue = monthlyValue / 30;
-        dailyQuantityInput.value = dailyValue > 0 ? dailyValue.toFixed(1) : '';
-        console.log('Meta mensal:', monthlyValue, '-> Quantidade diária:', dailyValue.toFixed(1));
-    } else if (inputElement === dailyQuantityInput) {
-        // Usuário preencheu quantidade diária, calcular mensal
-        const dailyValue = parseFloat(dailyQuantityInput.value) || 0;
-        const monthlyValue = dailyValue * 30;
-        monthlyGoalInput.value = monthlyValue > 0 ? Math.round(monthlyValue) : '';
-        console.log('Quantidade diária:', dailyValue, '-> Meta mensal:', Math.round(monthlyValue));
-    }
+  console.log('Sincronizando meta mensal/quantidade diária');
+  
+  const row = inputElement.closest('tr');
+  if (!row) {
+    console.error('Linha não encontrada');
+    return;
+  }
+  
+  const monthlyGoalInput = row.querySelector('.exam-monthly-goal');
+  const dailyQuantityInput = row.querySelector('.exam-daily-quantity');
+  
+  if (!monthlyGoalInput || !dailyQuantityInput) {
+    console.error('Campos de meta não encontrados');
+    return;
+  }
+  
+  if (inputElement === monthlyGoalInput) {
+    // Usuário preencheu meta mensal, calcular diária
+    const monthlyValue = parseFloat(monthlyGoalInput.value) || 0;
+    const dailyValue = monthlyValue / 30;
+    dailyQuantityInput.value = dailyValue > 0 ? dailyValue.toFixed(1) : '';
+    console.log('Meta mensal:', monthlyValue, '-> Quantidade diária:', dailyValue.toFixed(1));
+  } else if (inputElement === dailyQuantityInput) {
+    // Usuário preencheu quantidade diária, calcular mensal
+    const dailyValue = parseFloat(dailyQuantityInput.value) || 0;
+    const monthlyValue = dailyValue * 30;
+    monthlyGoalInput.value = monthlyValue > 0 ? Math.round(monthlyValue) : '';
+    console.log('Quantidade diária:', dailyValue, '-> Meta mensal:', Math.round(monthlyValue));
+  }
 }
-
 
 // Função para adicionar novo exame
 function addNewExam(examType = 'custom', customName = null, size = 100) {
-    console.log('Adicionando novo exame:', { examType, customName, size });
+  console.log('Adicionando novo exame:', { examType, customName, size });
+  
+  const tbody = document.getElementById('exams-tbody');
+  if (!tbody) {
+    console.error('Elemento #exams-tbody não encontrado');
+    return null;
+  }
+  
+  // Criar nova linha
+  const newRow = document.createElement('tr');
+  newRow.className = 'custom-exam-row';
+  newRow.setAttribute('data-exam-type', examType);
+  
+  // Gerar um ID único para esta linha
+  const rowId = 'exam-row-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+  newRow.id = rowId;
+  
+  // Determinar o nome de exibição
+  let displayName = examFriendlyNames[examType] || 'Exame Personalizado';
+  if (examType === 'custom' && customName) {
+    displayName = customName;
+  }
+  
+  // Definir tamanho padrão baseado no tipo
+  const defaultSize = examSizeDefaults[examType] || size;
+  
+  // HTML da nova linha com estilos inline
+  newRow.innerHTML = `
+    <td data-label="Tipo de Exame">
+      <select class="exam-type-select" data-default-size="${defaultSize}" 
+              style="width: 100%; padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px; 
+                     font-family: 'Poppins', sans-serif; font-size: 1rem; background-color: white;
+                     background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23055a71' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E\");
+                     background-repeat: no-repeat; background-position: right 15px center; 
+                     background-size: 16px; appearance: none; cursor: pointer; transition: all 0.3s ease;">
+        <option value="ressonancia" ${examType === 'ressonancia' ? 'selected' : ''}>Ressonância Magnética</option>
+        <option value="tomografia" ${examType === 'tomografia' ? 'selected' : ''}>Tomografia Computadorizada</option>
+        <option value="raiox" ${examType === 'raiox' ? 'selected' : ''}>Raio-X Digital</option>
+        <option value="ultrassom" ${examType === 'ultrassom' ? 'selected' : ''}>Ultrassom</option>
+        <option value="densitometria" ${examType === 'densitometria' ? 'selected' : ''}>Densitometria Óssea</option>
+        <option value="hemodinamica" ${examType === 'hemodinamica' ? 'selected' : ''}>Hemodinâmica</option>
+        <option value="mamografia" ${examType === 'mamografia' ? 'selected' : ''}>Mamografia Digital</option>
+        <option value="ecocardio" ${examType === 'ecocardio' ? 'selected' : ''}>Ecocardiograma</option>
+        <option value="endoscopia" ${examType === 'endoscopia' ? 'selected' : ''}>Endoscopia</option>
+        <option value="colonoscopia" ${examType === 'colonoscopia' ? 'selected' : ''}>Colonoscopia</option>
+        <option value="broncoscopia" ${examType === 'broncoscopia' ? 'selected' : ''}>Broncoscopia</option>
+        <option value="custom" ${examType === 'custom' ? 'selected' : ''}>-- Personalizado --</option>
+      </select>
+      ${examType === 'custom' ? `
+      <input type="text" class="custom-exam-name" 
+             placeholder="Nome do exame personalizado" 
+             value="${customName || ''}"
+             style="margin-top: 5px; width: 100%; padding: 10px; border: 2px solid #ddd; 
+                    border-radius: 6px; font-family: 'Poppins', sans-serif;">
+      ` : ''}
+    </td>
+    <td data-label="Tamanho Médio (MB)">
+      <input type="number" class="exam-size" value="${defaultSize}" min="0" step="0.01" 
+             style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px;
+                    font-family: 'Poppins', sans-serif;">
+    </td>
+    <td data-label="Meta Mensal">
+      <input type="number" class="exam-monthly-goal" placeholder="Ex: 300" min="0" step="1" 
+             style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px;
+                    font-family: 'Poppins', sans-serif;">
+    </td>
+    <td data-label="Quantidade/Dia">
+      <input type="number" class="exam-daily-quantity" placeholder="Ex: 10" min="0" step="0.1" 
+             style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px;
+                    font-family: 'Poppins', sans-serif;">
+    </td>
+    <td data-label="Ações">
+      <button type="button" class="remove-exam-btn" title="Remover exame" 
+              style="background-color: #e74c3c; color: white; border: none; border-radius: 6px; 
+                     padding: 10px 15px; cursor: pointer; transition: all 0.3s;
+                     font-family: 'Poppins', sans-serif; font-size: 0.9rem;">
+        <i class="fas fa-trash"></i> Remover
+      </button>
+    </td>
+  `;
+  
+  // Adicionar à tabela
+  tbody.appendChild(newRow);
+  console.log('Nova linha adicionada com ID:', rowId);
+  
+  // Configurar eventos para a nova linha
+  const selectElement = newRow.querySelector('.exam-type-select');
+  const sizeInput = newRow.querySelector('.exam-size');
+  const monthlyGoalInput = newRow.querySelector('.exam-monthly-goal');
+  const dailyQuantityInput = newRow.querySelector('.exam-daily-quantity');
+  const removeBtn = newRow.querySelector('.remove-exam-btn');
+  const customNameInput = newRow.querySelector('.custom-exam-name');
+  
+  // Evento para mudança de tipo de exame
+  if (selectElement) {
+    selectElement.addEventListener('change', function() {
+      console.log('Tipo de exame alterado para:', this.value);
+      updateExamSizeFromType(this);
+      
+      // Mostrar/ocultar campo de nome personalizado
+      if (customNameInput) {
+        if (this.value === 'custom') {
+          customNameInput.style.display = 'block';
+        } else {
+          customNameInput.style.display = 'none';
+        }
+      }
+    });
+  }
+  
+  // Evento para entrada de meta mensal
+  if (monthlyGoalInput) {
+    monthlyGoalInput.addEventListener('input', function() {
+      console.log('Meta mensal alterada:', this.value);
+      syncMonthlyGoalAndDailyQuantity(this);
+    });
+  }
+  
+  // Evento para entrada de quantidade diária
+  if (dailyQuantityInput) {
+    dailyQuantityInput.addEventListener('input', function() {
+      console.log('Quantidade diária alterada:', this.value);
+      syncMonthlyGoalAndDailyQuantity(this);
+    });
+  }
+  
+  // Evento para tamanho do exame
+  if (sizeInput) {
+    sizeInput.addEventListener('input', function() {
+      console.log('Tamanho alterado:', this.value);
+      this.setAttribute('data-user-modified', 'true');
+    });
+  }
+  
+  // Evento para remover exame
+  if (removeBtn) {
+    removeBtn.addEventListener('click', function() {
+      console.log('Removendo exame:', rowId);
+      if (confirm('Tem certeza que deseja remover este exame?')) {
+        newRow.remove();
+        console.log('Exame removido:', rowId);
+      }
+    });
+  }
+  
+  // Evento para nome personalizado
+  if (customNameInput) {
+    customNameInput.addEventListener('input', function() {
+      console.log('Nome personalizado alterado:', this.value);
+    });
+  }
+  
+  // Inicializar campo de nome se for exame personalizado
+  if (examType === 'custom' && customNameInput) {
+    customNameInput.style.display = 'block';
+  }
+  
+  // Adicionar eventos de foco para estilização
+  const allInputs = newRow.querySelectorAll('input, select');
+  allInputs.forEach(input => {
+    input.addEventListener('focus', function() {
+      this.style.borderColor = '#24cec5';
+      this.style.boxShadow = '0 0 0 3px rgba(36, 206, 197, 0.2)';
+    });
     
-    const tbody = document.getElementById('exams-tbody');
-    if (!tbody) {
-        console.error('Elemento #exams-tbody não encontrado');
-        return;
-    }
-    
-    // Criar nova linha - usar template mais robusto
-    const newRow = document.createElement('tr');
-    newRow.className = 'custom-exam-row';
-    newRow.setAttribute('data-exam-type', examType);
-    
-    // Gerar um ID único para esta linha
-    const rowId = 'exam-row-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
-    newRow.id = rowId;
-    
-    // Determinar o nome de exibição
-    let displayName = examFriendlyNames[examType] || 'Exame Personalizado';
-    if (examType === 'custom' && customName) {
-        displayName = customName;
-    }
-    
-    // Definir tamanho padrão baseado no tipo
-    const defaultSize = examSizeDefaults[examType] || size;
-    
-    // HTML da nova linha
-    newRow.innerHTML = `
-        <td data-label="Tipo de Exame">
-            <select class="exam-type-select" data-default-size="${defaultSize}">
-                <option value="ressonancia" ${examType === 'ressonancia' ? 'selected' : ''}>Ressonância Magnética</option>
-                <option value="tomografia" ${examType === 'tomografia' ? 'selected' : ''}>Tomografia Computadorizada</option>
-                <option value="raiox" ${examType === 'raiox' ? 'selected' : ''}>Raio-X Digital</option>
-                <option value="ultrassom" ${examType === 'ultrassom' ? 'selected' : ''}>Ultrassom</option>
-                <option value="densitometria" ${examType === 'densitometria' ? 'selected' : ''}>Densitometria Óssea</option>
-                <option value="hemodinamica" ${examType === 'hemodinamica' ? 'selected' : ''}>Hemodinâmica</option>
-                <option value="mamografia" ${examType === 'mamografia' ? 'selected' : ''}>Mamografia Digital</option>
-                <option value="ecocardio" ${examType === 'ecocardio' ? 'selected' : ''}>Ecocardiograma</option>
-                <option value="endoscopia" ${examType === 'endoscopia' ? 'selected' : ''}>Endoscopia</option>
-                <option value="colonoscopia" ${examType === 'colonoscopia' ? 'selected' : ''}>Colonoscopia</option>
-                <option value="broncoscopia" ${examType === 'broncoscopia' ? 'selected' : ''}>Broncoscopia</option>
-                <option value="custom" ${examType === 'custom' ? 'selected' : ''}>-- Personalizado --</option>
-            </select>
-            ${examType === 'custom' ? `
-            <input type="text" class="custom-exam-name" 
-                   placeholder="Nome do exame personalizado" 
-                   value="${customName || ''}"
-                   style="margin-top: 5px; width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
-            ` : ''}
-        </td>
-        <td data-label="Tamanho Médio (MB)">
-            <input type="number" class="exam-size" value="${defaultSize}" min="0" step="0.01" 
-                   style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px;">
-        </td>
-        <td data-label="Meta Mensal">
-            <input type="number" class="exam-monthly-goal" placeholder="Ex: 300" min="0" step="1" 
-                   style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px;">
-        </td>
-        <td data-label="Quantidade/Dia">
-            <input type="number" class="exam-daily-quantity" placeholder="Ex: 10" min="0" step="0.1" 
-                   style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px;">
-        </td>
-        <td data-label="Ações">
-            <button type="button" class="remove-exam-btn" title="Remover exame" 
-                    style="background-color: #e74c3c; color: white; border: none; border-radius: 6px; padding: 10px; cursor: pointer; transition: all 0.3s;">
-                <i class="fas fa-trash"></i> Remover
-            </button>
-        </td>
-    `;
-    
-    // Adicionar à tabela
-    tbody.appendChild(newRow);
-    console.log('Nova linha adicionada com ID:', rowId);
-    
-    // Configurar eventos para a nova linha
-    const selectElement = newRow.querySelector('.exam-type-select');
-    const sizeInput = newRow.querySelector('.exam-size');
-    const monthlyGoalInput = newRow.querySelector('.exam-monthly-goal');
-    const dailyQuantityInput = newRow.querySelector('.exam-daily-quantity');
-    const removeBtn = newRow.querySelector('.remove-exam-btn');
-    const customNameInput = newRow.querySelector('.custom-exam-name');
-    
-    // Evento para mudança de tipo de exame
-    if (selectElement) {
-        selectElement.addEventListener('change', function() {
-            console.log('Tipo de exame alterado para:', this.value);
-            updateExamSizeFromType(this);
-            
-            // Mostrar/ocultar campo de nome personalizado
-            if (customNameInput) {
-                if (this.value === 'custom') {
-                    customNameInput.style.display = 'block';
-                } else {
-                    customNameInput.style.display = 'none';
-                }
-            }
-        });
-    }
-    
-    // Evento para entrada de meta mensal
-    if (monthlyGoalInput) {
-        monthlyGoalInput.addEventListener('input', function() {
-            console.log('Meta mensal alterada:', this.value);
-            syncMonthlyGoalAndDailyQuantity(this);
-        });
-    }
-    
-    // Evento para entrada de quantidade diária
-    if (dailyQuantityInput) {
-        dailyQuantityInput.addEventListener('input', function() {
-            console.log('Quantidade diária alterada:', this.value);
-            syncMonthlyGoalAndDailyQuantity(this);
-        });
-    }
-    
-    // Evento para tamanho do exame
-    if (sizeInput) {
-        sizeInput.addEventListener('input', function() {
-            console.log('Tamanho alterado:', this.value);
-            this.setAttribute('data-user-modified', 'true');
-        });
-    }
-    
-    // Evento para remover exame
-    if (removeBtn) {
-        removeBtn.addEventListener('click', function() {
-            console.log('Removendo exame:', rowId);
-            if (confirm('Tem certeza que deseja remover este exame?')) {
-                newRow.remove();
-                console.log('Exame removido:', rowId);
-            }
-        });
-    }
-    
-    // Evento para nome personalizado
-    if (customNameInput) {
-        customNameInput.addEventListener('input', function() {
-            console.log('Nome personalizado alterado:', this.value);
-        });
-    }
-    
-    // Inicializar campo de nome se for exame personalizado
-    if (examType === 'custom' && customNameInput) {
-        customNameInput.style.display = 'block';
-    }
-    
-    return newRow;
+    input.addEventListener('blur', function() {
+      this.style.borderColor = '#ddd';
+      this.style.boxShadow = 'none';
+    });
+  });
+  
+  return newRow;
 }
 
 // Função para coletar dados dos exames
@@ -349,41 +414,76 @@ function collectExamData() {
   const examRows = document.querySelectorAll('#exams-tbody tr');
   const examData = {};
   
+  console.log('Coletando dados de', examRows.length, 'exames...');
+  
   examRows.forEach((row, index) => {
     const select = row.querySelector('.exam-type-select');
+    if (!select) {
+      console.warn(`Linha ${index} não tem select, ignorando`);
+      return;
+    }
+    
     const examType = select.value;
     const customNameInput = row.querySelector('.custom-exam-name');
     
     // Determinar nome do exame
-    let examName = examType;
+    let examKey = examType;
     let displayName = examFriendlyNames[examType] || 'Exame Personalizado';
     
     if (examType === 'custom' && customNameInput && customNameInput.value.trim()) {
-      examName = 'custom_' + customNameInput.value.trim().toLowerCase().replace(/\s+/g, '_');
+      examKey = 'custom_' + customNameInput.value.trim().toLowerCase().replace(/[^a-z0-9]/g, '_');
       displayName = customNameInput.value.trim();
     }
     
     // Coletar valores
-    const size = parseFloat(row.querySelector('.exam-size').value) || 0;
-    const monthlyGoal = parseFloat(row.querySelector('.exam-monthly-goal').value) || 0;
-    const dailyQuantity = parseFloat(row.querySelector('.exam-daily-quantity').value) || 0;
+    const sizeInput = row.querySelector('.exam-size');
+    const monthlyGoalInput = row.querySelector('.exam-monthly-goal');
+    const dailyQuantityInput = row.querySelector('.exam-daily-quantity');
+    
+    const size = sizeInput ? parseFloat(sizeInput.value) || 0 : 0;
+    const monthlyGoal = monthlyGoalInput ? parseFloat(monthlyGoalInput.value) || 0 : 0;
+    const dailyQuantity = dailyQuantityInput ? parseFloat(dailyQuantityInput.value) || 0 : 0;
     
     // Usar o que foi preenchido (meta mensal ou quantidade diária)
-    const quantity = monthlyGoal > 0 ? monthlyGoal / 30 : dailyQuantity;
-    
-    if (size > 0 && quantity > 0) {
-      examData[examName] = {
-        type: examType,
-        displayName: displayName,
-        size: size,
-        monthlyGoal: monthlyGoal,
-        dailyQuantity: quantity,
-        isCustom: examType === 'custom',
-        customName: examType === 'custom' && customNameInput ? customNameInput.value.trim() : null
-      };
+    let quantity = 0;
+    if (monthlyGoal > 0) {
+      quantity = monthlyGoal / 30;
+    } else if (dailyQuantity > 0) {
+      quantity = dailyQuantity;
     }
+    
+    // Calcular dados para o PDF
+    const dailyMB = size * quantity;
+    const monthlyMB = dailyMB * 30;
+    const monthlyGB = monthlyMB / 1024;
+    const annualGB = (dailyMB * 365) / 1024;
+    
+    // Armazenar dados completos
+    examData[examKey] = {
+      type: examType,
+      displayName: displayName,
+      size: size,
+      monthlyGoal: monthlyGoal,
+      dailyQuantity: quantity,
+      isCustom: examType === 'custom',
+      customName: examType === 'custom' && customNameInput ? customNameInput.value.trim() : null,
+      // Dados calculados para o PDF
+      dailyMB: dailyMB,
+      monthlyMB: monthlyMB,
+      monthlyGB: monthlyGB,
+      annualGB: annualGB
+    };
+    
+    console.log(`Exame ${index + 1} (${displayName}):`, {
+      size: size,
+      quantity: quantity,
+      dailyMB: dailyMB,
+      monthlyGB: monthlyGB,
+      annualGB: annualGB
+    });
   });
   
+  console.log('Dados coletados dos exames:', Object.keys(examData).length, 'exames válidos');
   return examData;
 }
 
@@ -474,9 +574,11 @@ function formatStorage(gb) {
 }
 
 document.addEventListener('DOMContentLoaded', async function () {
+  console.log('=== INICIANDO APLICAÇÃO PACS v3.0 CORRIGIDA ===');
+  
   try {
     await loadChartJS();
-    console.log('Chart.js carregado com sucesso');
+    console.log('✅ Chart.js carregado com sucesso');
 
     document.getElementById('current-year').textContent = new Date().getFullYear();
 
@@ -495,6 +597,24 @@ document.addEventListener('DOMContentLoaded', async function () {
     const customNameGroup = document.getElementById('custom-name-group');
     const customExamNameInput = document.getElementById('custom-exam-name');
     const newExamSizeInput = document.getElementById('new-exam-size');
+
+    // Verificar se elementos essenciais existem
+    console.log('Verificando elementos DOM...');
+    const requiredElements = [
+      { id: 'calculate-btn', name: 'Botão Calcular' },
+      { id: 'exams-tbody', name: 'Tabela de Exames' },
+      { id: 'add-exam-btn', name: 'Botão Adicionar Exame' },
+      { id: 'add-exam-modal', name: 'Modal' }
+    ];
+
+    requiredElements.forEach(element => {
+      const el = document.getElementById(element.id);
+      if (!el) {
+        console.error(`❌ Elemento não encontrado: ${element.name} (${element.id})`);
+      } else {
+        console.log(`✅ Elemento encontrado: ${element.name}`);
+      }
+    });
 
     // Configurar eventos existentes
     calculateBtn.addEventListener('click', calculateProjection);
@@ -539,6 +659,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Configurar modal para adicionar exames
     addExamBtn.addEventListener('click', function() {
+      console.log('Abrindo modal para adicionar exame');
       addExamModal.classList.add('active');
       newExamTypeSelect.value = 'custom';
       customNameGroup.style.display = 'none';
@@ -547,14 +668,17 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
     
     closeModalBtn.addEventListener('click', function() {
+      console.log('Fechando modal');
       addExamModal.classList.remove('active');
     });
     
     cancelAddExamBtn.addEventListener('click', function() {
+      console.log('Cancelando adição de exame');
       addExamModal.classList.remove('active');
     });
     
     newExamTypeSelect.addEventListener('change', function() {
+      console.log('Tipo de exame selecionado no modal:', this.value);
       if (this.value === 'custom') {
         customNameGroup.style.display = 'block';
         newExamSizeInput.value = 100;
@@ -564,60 +688,58 @@ document.addEventListener('DOMContentLoaded', async function () {
       }
     });
     
-    // Substitua o event listener do saveNewExamBtn por esta versão corrigida:
-
-saveNewExamBtn.addEventListener('click', function() {
-    console.log('Botão Adicionar Exame clicado');
-    
-    const examType = newExamTypeSelect.value;
-    console.log('Tipo selecionado:', examType);
-    
-    let customName = null;
-    
-    if (examType === 'custom') {
+    saveNewExamBtn.addEventListener('click', function() {
+      console.log('Botão Adicionar Exame clicado');
+      
+      const examType = newExamTypeSelect.value;
+      console.log('Tipo selecionado:', examType);
+      
+      let customName = null;
+      
+      if (examType === 'custom') {
         customName = customExamNameInput.value.trim();
         console.log('Nome personalizado:', customName);
         
         if (!customName) {
-            alert('Por favor, informe um nome para o exame personalizado.');
-            customExamNameInput.focus();
-            return;
+          alert('Por favor, informe um nome para o exame personalizado.');
+          customExamNameInput.focus();
+          return;
         }
-    }
-    
-    const size = parseFloat(newExamSizeInput.value) || 100;
-    console.log('Tamanho definido:', size);
-    
-    try {
+      }
+      
+      const size = parseFloat(newExamSizeInput.value) || 100;
+      console.log('Tamanho definido:', size);
+      
+      try {
         // Adicionar o novo exame
         const newRow = addNewExam(examType, customName, size);
         
         if (newRow) {
-            console.log('Exame adicionado com sucesso');
-            
-            // Fechar modal
-            addExamModal.classList.remove('active');
-            
-            // Resetar campos do modal
-            newExamTypeSelect.value = 'custom';
-            customNameGroup.style.display = 'none';
-            newExamSizeInput.value = 100;
-            customExamNameInput.value = '';
-            
-            // Scroll para a nova linha
-            setTimeout(() => {
-                smoothScrollToElement(newRow);
-                console.log('Scroll realizado para nova linha');
-            }, 100);
+          console.log('✅ Exame adicionado com sucesso');
+          
+          // Fechar modal
+          addExamModal.classList.remove('active');
+          
+          // Resetar campos do modal
+          newExamTypeSelect.value = 'custom';
+          customNameGroup.style.display = 'none';
+          newExamSizeInput.value = 100;
+          customExamNameInput.value = '';
+          
+          // Scroll para a nova linha
+          setTimeout(() => {
+            smoothScrollToElement(newRow);
+            console.log('Scroll realizado para nova linha');
+          }, 100);
         } else {
-            console.error('Falha ao adicionar exame - newRow é undefined');
-            alert('Ocorreu um erro ao adicionar o exame. Por favor, tente novamente.');
+          console.error('❌ Falha ao adicionar exame - newRow é undefined');
+          alert('Ocorreu um erro ao adicionar o exame. Por favor, tente novamente.');
         }
-    } catch (error) {
+      } catch (error) {
         console.error('Erro ao adicionar exame:', error);
         alert('Erro ao adicionar exame: ' + error.message);
-    }
-});
+      }
+    });
 
     // Fechar modal com ESC
     document.addEventListener('keydown', function(e) {
@@ -688,9 +810,10 @@ saveNewExamBtn.addEventListener('click', function() {
 
         for (const [examId, data] of Object.entries(examData)) {
           if (data.size > 0 && data.dailyQuantity > 0) {
-            const dailyMB = data.size * data.dailyQuantity;
-            const monthlyMB = dailyMB * 30;
-            const annualGB = (dailyMB * 365) / 1024;
+            // Usar dados já calculados
+            const dailyMB = parseFloat((data.dailyMB || 0).toFixed(2));
+            const monthlyMB = parseFloat((data.monthlyMB || 0).toFixed(2));
+            const annualGB = parseFloat((data.annualGB || 0).toFixed(2));
 
             examResults[examId] = {
               displayName: data.displayName,
@@ -700,11 +823,19 @@ saveNewExamBtn.addEventListener('click', function() {
               dailyMB: dailyMB,
               monthlyMB: monthlyMB,
               annualGB: annualGB,
-              monthlyGB: monthlyMB / 1024,
+              monthlyGB: parseFloat((data.monthlyGB || 0).toFixed(2)),
               isCustom: data.isCustom
             };
 
             totalMonthlyMB += monthlyMB;
+            
+            console.log(`Cálculo para ${data.displayName}:`, {
+              size: data.size,
+              dailyQuantity: data.dailyQuantity,
+              dailyMB: dailyMB,
+              monthlyMB: monthlyMB,
+              annualGB: annualGB
+            });
           }
         }
 
@@ -731,6 +862,13 @@ saveNewExamBtn.addEventListener('click', function() {
           projections: projections,
           customYears: customYears
         };
+
+        console.log('Cálculos completos:', {
+          totalMonthlyMB: totalMonthlyMB,
+          annualGB: annualGB,
+          examResultsCount: Object.keys(examResults).length,
+          marginConfig: marginConfig
+        });
 
         // Atualizar interface
         updateResults(projections, customYears, marginConfig);
@@ -1012,6 +1150,7 @@ saveNewExamBtn.addEventListener('click', function() {
     }
 
     function resetForm() {
+      console.log('Resetando formulário...');
       resultsSection.style.display = 'none';
       
       // Resetar campos de margem
@@ -1057,6 +1196,7 @@ saveNewExamBtn.addEventListener('click', function() {
         firstRow.querySelector('.exam-size').value = '600';
         firstRow.querySelector('.exam-monthly-goal').value = '';
         firstRow.querySelector('.exam-daily-quantity').value = '';
+        firstRow.querySelector('.exam-size').removeAttribute('data-user-modified');
       }
       
       const secondRow = tbody.querySelector('tr:nth-child(2)');
@@ -1065,12 +1205,21 @@ saveNewExamBtn.addEventListener('click', function() {
         secondRow.querySelector('.exam-size').value = '400';
         secondRow.querySelector('.exam-monthly-goal').value = '';
         secondRow.querySelector('.exam-daily-quantity').value = '';
+        secondRow.querySelector('.exam-size').removeAttribute('data-user-modified');
       }
+      
+      // Reaplicar estilos aos selects
+      setTimeout(() => {
+        initializeExistingSelectStyles();
+      }, 100);
     }
 
     async function handlePdfGeneration() {
       const pdfBtn = document.getElementById('generate-pdf');
-      if (!pdfBtn) return;
+      if (!pdfBtn) {
+        console.error('Botão de PDF não encontrado');
+        return;
+      }
 
       const originalText = pdfBtn.innerHTML;
       pdfBtn.innerHTML = '<span class="loading">Gerando PDF...</span>';
@@ -1098,6 +1247,12 @@ saveNewExamBtn.addEventListener('click', function() {
 
       // Coletar dados para o PDF
       const examData = collectExamData();
+      
+      console.log('Dados para PDF:', {
+        unitName: currentCalculations.unitName,
+        examDataCount: Object.keys(examData).length,
+        examData: examData
+      });
 
       // Preparar resultados para o PDF
       const results = {
@@ -1174,10 +1329,15 @@ saveNewExamBtn.addEventListener('click', function() {
       return images;
     }
 
-    console.log('Aplicação inicializada com sucesso - Versão 3.0');
+    // Inicializar estilos dos selects existentes
+    setTimeout(() => {
+      initializeExistingSelectStyles();
+    }, 100);
+
+    console.log('✅ Aplicação inicializada com sucesso - Versão 3.0 Corrigida');
 
   } catch (error) {
-    console.error('Erro ao carregar a aplicação:', error);
+    console.error('❌ Erro ao carregar a aplicação:', error);
     alert('Erro ao carregar os recursos necessários. Por favor, recarregue a página.');
   }
 });

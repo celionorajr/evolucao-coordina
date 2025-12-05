@@ -6,21 +6,6 @@ import fs from 'fs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Tabela de nomes amigáveis para PDF
-const examFriendlyNames = {
-  ressonancia: 'Ressonância Magnética',
-  tomografia: 'Tomografia Computadorizada',
-  raiox: 'Raio-X Digital',
-  ultrassom: 'Ultrassom',
-  densitometria: 'Densitometria Óssea',
-  hemodinamica: 'Hemodinâmica',
-  mamografia: 'Mamografia Digital',
-  ecocardio: 'Ecocardiograma',
-  endoscopia: 'Endoscopia',
-  colonoscopia: 'Colonoscopia',
-  broncoscopia: 'Broncoscopia'
-};
-
 export async function generatePdf(unitName, examData, results, date, chartImages = {}, calculations = {}) {
     let browser;
     
@@ -89,42 +74,71 @@ function buildPdfHtml(unitName, examData, results, date, chartImages, logoBase64
     let totalAnnualGB = 0;
     const examDetails = [];
 
+    console.log('=== GERANDO HTML PARA PDF ===');
+    console.log('Unit Name:', unitName);
+    console.log('Número de exames recebidos:', Object.keys(examData).length);
+
     // Calcular detalhes dos exames
     for (const [examId, data] of Object.entries(examData)) {
-        if (data.size > 0 && data.dailyQuantity > 0) {
-            const dailyMB = data.size * data.dailyQuantity;
-            const monthlyMB = dailyMB * 30;
-            const monthlyGB = monthlyMB / 1024;
-            const annualGB = (dailyMB * 365) / 1024;
+        console.log(`Processando exame ${examId}:`, data);
+        
+        // Verificar se tem dados suficientes
+        if (data && typeof data === 'object' && data.size > 0 && data.dailyQuantity > 0) {
+            // Usar dados já calculados do frontend
+            let dailyMB = data.dailyMB || 0;
+            let monthlyGB = data.monthlyGB || 0;
+            let annualGB = data.annualGB || 0;
+            let monthlyMB = data.monthlyMB || 0;
+            
+            // Se não veio calculado, calcular
+            if (!dailyMB || !monthlyGB) {
+                dailyMB = data.size * data.dailyQuantity;
+                monthlyMB = dailyMB * 30;
+                monthlyGB = monthlyMB / 1024;
+                annualGB = (dailyMB * 365) / 1024;
+            }
+            
+            // Arredondar valores
+            dailyMB = parseFloat(dailyMB.toFixed(2));
+            monthlyGB = parseFloat(monthlyGB.toFixed(2));
+            annualGB = parseFloat(annualGB.toFixed(2));
+            monthlyMB = parseFloat(monthlyMB.toFixed(2));
+            
+            // Calcular meta mensal (se não tiver)
+            const monthlyGoal = data.monthlyGoal || Math.round(data.dailyQuantity * 30);
             
             totalMonthlyGB += monthlyGB;
             totalAnnualGB += annualGB;
 
             examDetails.push({
-                name: data.displayName,
-                size: data.size.toFixed(2),
-                monthlyGoal: data.monthlyGoal || Math.round(data.dailyQuantity * 30),
-                dailyQuantity: data.dailyQuantity.toFixed(1),
-                dailyMB: dailyMB.toFixed(2),
-                monthlyGB: monthlyGB.toFixed(2),
-                annualGB: annualGB.toFixed(2),
-                isCustom: data.isCustom || false
+                name: data.displayName || examId.replace('custom_', '').replace(/_/g, ' '),
+                size: parseFloat(data.size.toFixed(2)),
+                monthlyGoal: monthlyGoal,
+                dailyQuantity: parseFloat(data.dailyQuantity.toFixed(1)),
+                dailyMB: dailyMB,
+                monthlyGB: monthlyGB,
+                annualGB: annualGB,
+                isCustom: data.isCustom || examId.startsWith('custom_')
             });
         }
     }
 
     examDetails.sort((a, b) => b.monthlyGB - a.monthlyGB);
 
+    console.log('Total Monthly GB:', totalMonthlyGB.toFixed(2));
+    console.log('Total Annual GB:', totalAnnualGB.toFixed(2));
+    console.log('Número de exames processados:', examDetails.length);
+
     // Gerar tabela de exames
     const examsTableRows = examDetails.map(exam => `
         <tr>
-            <td>${exam.name}${exam.isCustom ? ' *' : ''}</td>
+            <td>${exam.name}</td>
             <td class="text-right">${exam.size} MB</td>
             <td class="text-center">${exam.monthlyGoal}</td>
             <td class="text-center">${exam.dailyQuantity}</td>
-            <td class="text-right">${exam.dailyMB} MB</td>
-            <td class="text-right">${exam.monthlyGB} GB</td>
-            <td class="text-right">${exam.annualGB} GB</td>
+            <td class="text-right">${exam.dailyMB.toFixed(2)} MB</td>
+            <td class="text-right">${exam.monthlyGB.toFixed(2)} GB</td>
+            <td class="text-right">${exam.annualGB.toFixed(2)} GB</td>
         </tr>
     `).join('');
 
@@ -159,21 +173,13 @@ function buildPdfHtml(unitName, examData, results, date, chartImages, logoBase64
         `;
     }
 
-    // Verificar se há exames personalizados
-    const hasCustomExams = examDetails.some(exam => exam.isCustom);
-    const customExamNote = hasCustomExams ? `
-        <div style="margin-top: 10px; font-size: 10px; color: #7f8c8d;">
-            * Exames personalizados adicionados pelo usuário
-        </div>
-    ` : '';
-
     return `
         <!DOCTYPE html>
         <html lang="pt-BR">
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Relatório PACS - Sistema Avançado</title>
+            <title>Relatório de Projeção PACS - ${unitName}</title>
             <style>
                 body { 
                     font-family: 'Poppins', Arial, sans-serif; 
@@ -297,10 +303,6 @@ function buildPdfHtml(unitName, examData, results, date, chartImages, logoBase64
                     font-style: italic;
                     margin-top: 5px;
                 }
-                .custom-exam {
-                    color: #3498db;
-                    font-weight: 500;
-                }
             </style>
         </head>
         <body>
@@ -312,7 +314,7 @@ function buildPdfHtml(unitName, examData, results, date, chartImages, logoBase64
                 <div class="report-info">
                     <p><strong>Unidade:</strong> ${unitName}</p>
                     <p><strong>Data de geração:</strong> ${date}</p>
-                    <p><strong>Versão do Sistema:</strong> 3.0 - Sistema Avançado com Metas Mensais</p>
+                    <p><strong>Total de exames configurados:</strong> ${examDetails.length}</p>
                 </div>
             </div>
 
@@ -321,7 +323,6 @@ function buildPdfHtml(unitName, examData, results, date, chartImages, logoBase64
                     <h2>Resumo Executivo</h2>
                     <p><strong>Total de armazenamento mensal:</strong> <span class="highlight">${totalMonthlyGB.toFixed(2)} GB</span></p>
                     <p><strong>Armazenamento anual projetado:</strong> <span class="highlight">${results.annual}</span></p>
-                    <p><strong>Quantidade de tipos de exames configurados:</strong> ${examDetails.length}</p>
                     ${marginInfo}
                 </div>
             </div>
@@ -350,7 +351,6 @@ function buildPdfHtml(unitName, examData, results, date, chartImages, logoBase64
                         </tr>
                     </tbody>
                 </table>
-                ${customExamNote}
                 <div class="margin-note">
                     Nota: A quantidade diária é calculada automaticamente a partir da meta mensal (Meta Mensal ÷ 30 dias)
                 </div>
@@ -396,8 +396,6 @@ function buildPdfHtml(unitName, examData, results, date, chartImages, logoBase64
             <div class="footer">
                 <p>&copy; ${new Date().getFullYear()} Polos Tecnologia - Todos os direitos reservados</p>
                 <p>Desenvolvido por Célio Nora Junior | Analista de Suporte Técnico</p>
-                <p><small>Relatório gerado automaticamente pelo Sistema de Dimensionamento PACS v3.0 - Sistema Avançado</small></p>
-                <p><small>Este relatório considera: Tamanhos médios de exames, metas mensais configuráveis, margem de segurança e projeções personalizadas</small></p>
             </div>
         </body>
         </html>

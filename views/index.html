@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <style>
+        /* Estilos inline para garantir funcionamento imediato */
         .exam-actions {
             text-align: right;
             margin-bottom: 15px;
@@ -18,8 +19,8 @@
             background-color: #2ecc71;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
+            padding: 12px 24px;
+            border-radius: 8px;
             cursor: pointer;
             font-family: 'Poppins', sans-serif;
             font-weight: 500;
@@ -27,6 +28,7 @@
             align-items: center;
             gap: 8px;
             transition: all 0.3s;
+            font-size: 1rem;
         }
         
         .btn-add-exam:hover {
@@ -85,15 +87,17 @@
         .modal-header h3 {
             color: #055a71;
             margin: 0;
+            font-size: 1.3rem;
         }
         
         .close-modal {
             background: none;
             border: none;
-            font-size: 24px;
+            font-size: 28px;
             color: #7f8c8d;
             cursor: pointer;
             transition: color 0.3s;
+            line-height: 1;
         }
         
         .close-modal:hover {
@@ -110,9 +114,26 @@
             justify-content: flex-end;
         }
         
+        .btn-modal-cancel,
+        .btn-modal-save {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 120px;
+            text-align: center;
+        }
+        
         .btn-modal-cancel {
             background-color: #e0e0e0;
             color: #333;
+        }
+        
+        .btn-modal-cancel:hover {
+            background-color: #d0d0d0;
         }
         
         .btn-modal-save {
@@ -120,40 +141,51 @@
             color: white;
         }
         
+        .btn-modal-save:hover {
+            background-color: #044a5e;
+            transform: translateY(-2px);
+        }
+        
         .custom-exam-row {
             background-color: #f8f9fa !important;
-            border-left: 4px solid #3498db;
+            border-left: 4px solid #3498db !important;
         }
         
         .remove-exam-btn {
             background-color: #e74c3c;
             color: white;
             border: none;
-            border-radius: 4px;
-            padding: 5px 10px;
+            border-radius: 6px;
+            padding: 10px 15px;
             cursor: pointer;
-            font-size: 12px;
             transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
         
         .remove-exam-btn:hover {
             background-color: #c0392b;
+            transform: scale(1.05);
         }
         
         .margin-highlight {
             color: #e67e22 !important;
-            font-weight: 600 !important;
+            font-weight: 700 !important;
         }
         
         .margin-progressive {
             color: #e74c3c !important;
-            font-weight: 600 !important;
+            font-weight: 700 !important;
         }
         
         .info-icon {
             color: #3498db;
             cursor: help;
             margin-left: 5px;
+            font-size: 14px;
         }
         
         .info-tooltip {
@@ -166,18 +198,30 @@
             width: 300px;
             background-color: #2c3e50;
             color: white;
-            text-align: center;
+            text-align: left;
             border-radius: 6px;
-            padding: 10px;
+            padding: 12px;
             position: absolute;
-            z-index: 1;
+            z-index: 1000;
             bottom: 125%;
             left: 50%;
             transform: translateX(-50%);
             opacity: 0;
             transition: opacity 0.3s;
-            font-size: 12px;
+            font-size: 13px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            line-height: 1.5;
+        }
+        
+        .info-tooltip .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #2c3e50 transparent transparent transparent;
         }
         
         .info-tooltip:hover .tooltip-text {
@@ -185,8 +229,85 @@
             opacity: 1;
         }
         
-        .exam-template {
-            display: none;
+        /* Ajustes para a tabela */
+        .exam-table th:nth-child(1),
+        .exam-table td:nth-child(1) {
+            width: 25%;
+        }
+        
+        .exam-table th:nth-child(2),
+        .exam-table td:nth-child(2) {
+            width: 20%;
+        }
+        
+        .exam-table th:nth-child(3),
+        .exam-table td:nth-child(3) {
+            width: 20%;
+            text-align: center;
+        }
+        
+        .exam-table th:nth-child(4),
+        .exam-table td:nth-child(4) {
+            width: 20%;
+            text-align: center;
+        }
+        
+        .exam-table th:nth-child(5),
+        .exam-table td:nth-child(5) {
+            width: 15%;
+            text-align: center;
+        }
+        
+        /* Estilos específicos para inputs e selects existentes */
+        #exams-tbody tr:first-child .exam-type-select,
+        #exams-tbody tr:nth-child(2) .exam-type-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            background-color: white;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23055a71' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 16px;
+            appearance: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        #exams-tbody tr:first-child .exam-type-select:focus,
+        #exams-tbody tr:nth-child(2) .exam-type-select:focus {
+            border-color: #24cec5;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(36, 206, 197, 0.2);
+        }
+        
+        #exams-tbody tr:first-child .exam-size,
+        #exams-tbody tr:first-child .exam-monthly-goal,
+        #exams-tbody tr:first-child .exam-daily-quantity,
+        #exams-tbody tr:nth-child(2) .exam-size,
+        #exams-tbody tr:nth-child(2) .exam-monthly-goal,
+        #exams-tbody tr:nth-child(2) .exam-daily-quantity {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        #exams-tbody tr:first-child .exam-size:focus,
+        #exams-tbody tr:first-child .exam-monthly-goal:focus,
+        #exams-tbody tr:first-child .exam-daily-quantity:focus,
+        #exams-tbody tr:nth-child(2) .exam-size:focus,
+        #exams-tbody tr:nth-child(2) .exam-monthly-goal:focus,
+        #exams-tbody tr:nth-child(2) .exam-daily-quantity:focus {
+            border-color: #24cec5;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(36, 206, 197, 0.2);
         }
     </style>
 </head>
@@ -226,7 +347,7 @@
                                     <i class="fas fa-info-circle info-icon"></i>
                                     <span class="tooltip-text">Preencha a meta mensal OU a quantidade diária. O outro campo será calculado automaticamente (Meta Mensal ÷ 30).</span>
                                 </span></th>
-                                <th style="width: 80px;">Ações</th>
+                                <th style="width: 100px;">Ações</th>
                             </tr>
                         </thead>
                         <tbody id="exams-tbody">
@@ -241,6 +362,10 @@
                                         <option value="densitometria">Densitometria Óssea</option>
                                         <option value="hemodinamica">Hemodinâmica</option>
                                         <option value="mamografia">Mamografia Digital</option>
+                                        <option value="ecocardio">Ecocardiograma</option>
+                                        <option value="endoscopia">Endoscopia</option>
+                                        <option value="colonoscopia">Colonoscopia</option>
+                                        <option value="broncoscopia">Broncoscopia</option>
                                         <option value="custom">-- Personalizado --</option>
                                     </select>
                                 </td>
@@ -269,6 +394,10 @@
                                         <option value="densitometria">Densitometria Óssea</option>
                                         <option value="hemodinamica">Hemodinâmica</option>
                                         <option value="mamografia">Mamografia Digital</option>
+                                        <option value="ecocardio">Ecocardiograma</option>
+                                        <option value="endoscopia">Endoscopia</option>
+                                        <option value="colonoscopia">Colonoscopia</option>
+                                        <option value="broncoscopia">Broncoscopia</option>
                                         <option value="custom">-- Personalizado --</option>
                                     </select>
                                 </td>
@@ -287,39 +416,6 @@
                             </tr>
                         </tbody>
                     </table>
-
-                    <!-- Template para novos exames (oculto) -->
-                    <div class="exam-template" id="exam-row-template">
-                        <tr class="custom-exam-row" data-exam-type="custom">
-                            <td data-label="Tipo de Exame">
-                                <select class="exam-type-select" data-default-size="100">
-                                    <option value="ressonancia">Ressonância Magnética</option>
-                                    <option value="tomografia">Tomografia Computadorizada</option>
-                                    <option value="raiox">Raio-X Digital</option>
-                                    <option value="ultrassom">Ultrassom</option>
-                                    <option value="densitometria">Densitometria Óssea</option>
-                                    <option value="hemodinamica">Hemodinâmica</option>
-                                    <option value="mamografia">Mamografia Digital</option>
-                                    <option value="custom" selected>-- Personalizado --</option>
-                                </select>
-                                <input type="text" class="custom-exam-name" placeholder="Nome do exame" style="margin-top: 5px; width: 100%; display: none;">
-                            </td>
-                            <td data-label="Tamanho Médio (MB)">
-                                <input type="number" class="exam-size" value="100" min="0" step="0.01">
-                            </td>
-                            <td data-label="Meta Mensal">
-                                <input type="number" class="exam-monthly-goal" placeholder="Ex: 150" min="0" step="1">
-                            </td>
-                            <td data-label="Quantidade/Dia">
-                                <input type="number" class="exam-daily-quantity" placeholder="Ex: 5" min="0" step="0.1">
-                            </td>
-                            <td data-label="Ações">
-                                <button type="button" class="remove-exam-btn" title="Remover exame">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    </div>
 
                     <div class="margin-section">
                         <h3>Margem de Segurança</h3>
@@ -435,7 +531,7 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label for="new-exam-type">Tipo de Exame</label>
-                    <select id="new-exam-type" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 15px;">
+                    <select id="new-exam-type" style="width: 100%; padding: 12px 15px; border-radius: 8px; border: 2px solid #ddd; font-family: 'Poppins', sans-serif;">
                         <option value="custom">-- Criar Exame Personalizado --</option>
                         <option value="ressonancia">Ressonância Magnética</option>
                         <option value="tomografia">Tomografia Computadorizada</option>
@@ -453,14 +549,14 @@
                 
                 <div class="form-group" id="custom-name-group" style="display: none;">
                     <label for="custom-exam-name">Nome do Exame Personalizado</label>
-                    <input type="text" id="custom-exam-name" placeholder="Ex: Angioressonância, PET-CT, etc." 
-                           style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd;">
+                    <input type="text" id="custom-exam-name" placeholder="Ex: Angioressonância, PET-CT, Doppler RS, etc." 
+                           style="width: 100%; padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px; font-family: 'Poppins', sans-serif;">
                 </div>
                 
                 <div class="form-group">
                     <label for="new-exam-size">Tamanho Médio (MB)</label>
                     <input type="number" id="new-exam-size" min="0" step="0.01" value="100" 
-                           style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd;">
+                           style="width: 100%; padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px; font-family: 'Poppins', sans-serif;">
                     <small style="color: #666;">Tamanho médio do arquivo de exame em megabytes</small>
                 </div>
             </div>

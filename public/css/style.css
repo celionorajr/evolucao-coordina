@@ -973,4 +973,105 @@ h3 {
         font-size: 0.9rem;
     }
 }
+
+
+/* Estilização dos selects nos exames */
+.exam-table select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    background-color: white;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23055a71' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 16px;
+    appearance: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.exam-table select:focus {
+    border-color: #24cec5;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(36, 206, 197, 0.2);
+}
+
+.exam-table select:hover {
+    border-color: #1da0a5;
+}
+
+/* Estilo para select do modal */
+#new-exam-type {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    background-color: white;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23055a71' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 16px;
+    appearance: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#new-exam-type:focus {
+    border-color: #24cec5;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(36, 206, 197, 0.2);
+}
+
+/* Estilo para selects com valor padrão vs personalizado */
+.exam-table select option[value="custom"] {
+    color: #3498db;
+    font-weight: 600;
+}
+
+/* Diferentes cores para diferentes tipos de exames (opcional) */
+.exam-table select option[value="ressonancia"] { color: #055a71; }
+.exam-table select option[value="tomografia"] { color: #178f96; }
+.exam-table select option[value="raiox"] { color: #1da0a5; }
+.exam-table select option[value="ultrassom"] { color: #23adac; }
+.exam-table select option[value="densitometria"] { color: #2c3e50; }
+.exam-table select option[value="hemodinamica"] { color: #8e44ad; }
+.exam-table select option[value="mamografia"] { color: #3498db; }
+.exam-table select option[value="ecocardio"] { color: #2ecc71; }
+.exam-table select option[value="endoscopia"] { color: #e74c3c; }
+.exam-table select option[value="colonoscopia"] { color: #f39c12; }
+.exam-table select option[value="broncoscopia"] { color: #d35400; }
+
+/* Remove o estilo padrão do select no Internet Explorer */
+.exam-table select::-ms-expand {
+    display: none;
+}
+
+/* Estilo para select quando está desabilitado */
+.exam-table select:disabled {
+    background-color: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+    border-color: #e0e0e0;
+}
+
+/* Responsividade para selects */
+@media (max-width: 768px) {
+    .exam-table select {
+        padding: 10px 12px;
+        font-size: 0.95rem;
+        background-position: right 12px center;
+    }
+    
+    #new-exam-type {
+        padding: 10px 12px;
+        font-size: 0.95rem;
+        background-position: right 12px center;
+    }
+}
 }
